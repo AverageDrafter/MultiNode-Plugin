@@ -1,0 +1,3192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MultiNode v0.2.0 — API Reference</title>
+<style>
+:root {
+    --bg: #1a1a2e;
+    --bg-section: #16213e;
+    --bg-code: #0f3460;
+    --text: #e0e0e0;
+    --text-dim: #a0a0b0;
+    --accent: #53a8b6;
+    --accent2: #79c7c5;
+    --heading: #e2f1f8;
+    --link: #79c7c5;
+    --border: #2a2a4a;
+    --table-head: #1a3a5c;
+    --table-row: #16213e;
+    --table-alt: #1a2744;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    display: flex;
+    min-height: 100vh;
+}
+nav {
+    width: 260px;
+    min-width: 260px;
+    background: var(--bg-section);
+    border-right: 1px solid var(--border);
+    padding: 20px 16px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+nav h1 {
+    color: var(--accent);
+    font-size: 1.3em;
+    margin-bottom: 4px;
+}
+nav .version {
+    color: var(--text-dim);
+    font-size: 0.85em;
+    margin-bottom: 16px;
+}
+nav ul {
+    list-style: none;
+}
+nav li {
+    margin: 2px 0;
+}
+nav a {
+    color: var(--link);
+    text-decoration: none;
+    font-size: 0.92em;
+    display: block;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+nav a:hover {
+    background: var(--bg-code);
+}
+main {
+    flex: 1;
+    max-width: 900px;
+    padding: 30px 40px;
+}
+.class-section {
+    margin-bottom: 50px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid var(--border);
+}
+h2.class-name {
+    color: var(--accent);
+    font-size: 1.8em;
+    margin-bottom: 4px;
+    padding-top: 10px;
+}
+.inherits {
+    color: var(--text-dim);
+    font-style: italic;
+    margin-bottom: 12px;
+}
+h3 {
+    color: var(--heading);
+    font-size: 1.25em;
+    margin-top: 24px;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 4px;
+}
+h4 {
+    color: var(--accent2);
+    font-size: 1.05em;
+    margin-top: 16px;
+    margin-bottom: 6px;
+}
+p {
+    margin: 8px 0;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 0.92em;
+}
+th {
+    background: var(--table-head);
+    text-align: left;
+    padding: 8px 12px;
+    color: var(--heading);
+    border: 1px solid var(--border);
+}
+td {
+    padding: 6px 12px;
+    border: 1px solid var(--border);
+}
+tr:nth-child(even) td {
+    background: var(--table-alt);
+}
+pre {
+    background: var(--bg-code);
+    padding: 12px 16px;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 8px 0;
+    font-size: 0.9em;
+}
+code {
+    font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", monospace;
+}
+code.inline {
+    background: var(--bg-code);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 0.9em;
+}
+li {
+    margin: 4px 0 4px 20px;
+    list-style-type: disc;
+}
+a {
+    color: var(--link);
+}
+strong {
+    color: var(--heading);
+}
+blockquote {
+    border-left: 3px solid var(--accent);
+    padding-left: 12px;
+    color: var(--text-dim);
+    margin: 8px 0;
+}
+@media (max-width: 768px) {
+    body { flex-direction: column; }
+    nav { width: 100%; min-width: auto; height: auto; position: static; }
+    main { padding: 20px; }
+}
+</style>
+</head>
+<body>
+<nav>
+    <h1>MultiNode</h1>
+    <div class="version">v0.2.0-alpha API Reference</div>
+    <ul>
+        <li><a href="#MultiNode">MultiNode</a></li>
+<li><a href="#MultiNodeSub">MultiNodeSub</a></li>
+<li><a href="#MultiNode3D">MultiNode3D</a></li>
+<li><a href="#MultiNodeVisual3D">MultiNodeVisual3D</a></li>
+<li><a href="#MultiNodeMesh">MultiNodeMesh</a></li>
+<li><a href="#MultiNodeCollider">MultiNodeCollider</a></li>
+<li><a href="#MultiNodeArea">MultiNodeArea</a></li>
+<li><a href="#MultiNodeRaycast">MultiNodeRaycast</a></li>
+<li><a href="#MultiNodeAudio">MultiNodeAudio</a></li>
+<li><a href="#MultiNodeAnimator">MultiNodeAnimator</a></li>
+<li><a href="#MultiNodeLabel">MultiNodeLabel</a></li>
+<li><a href="#MultiNodeParticle">MultiNodeParticle</a></li>
+<li><a href="#MultiNodeSprite">MultiNodeSprite</a></li>
+<li><a href="#MultiNodeDecal">MultiNodeDecal</a></li>
+<li><a href="#MultiNodeLight">MultiNodeLight</a></li>
+<li><a href="#MultiNodeInstancer">MultiNodeInstancer</a></li>
+<li><a href="#MultiNodeInstanceData">MultiNodeInstanceData</a></li>
+    </ul>
+</nav>
+<main>
+    <section class="class-section"><h2 class="class-name" id="MultiNode">MultiNode</h2>
+
+<p class="inherits"><strong>Inherits:</strong> Node3D</p>
+
+<p>Compositional instancing parent that manages a shared list of instance transforms and data.</p>
+
+<h3>Description</h3>
+
+<p>MultiNode is the root of a compositional instancing system. It owns the master instance list -- transforms, dirty flags, and per-instance data -- shared by all child nodes. Add MultiNodeSub-derived children (Mesh, Collider, Audio, etc.) to define what each instance is and does. One MultiNode with sub-nodes replaces thousands of individual scene nodes.</p>
+
+<h3>Properties</h3>
+
+<table>
+<tr><th>Name</th><th>Type</th><th>Default</th></tr>
+<tr><td><a href="#use_transforms">use_transforms</a></td><td>bool</td><td><code class="inline">true</code></td></tr>
+<tr><td><a href="#instance_count">instance_count</a></td><td>int</td><td><code class="inline">0</code></td></tr>
+<tr><td><a href="#instance_limit">instance_limit</a></td><td>int</td><td><code class="inline">0</code></td></tr>
+<tr><td><a href="#data_stride">data_stride</a></td><td>int</td><td><code class="inline">4</code></td></tr>
+<tr><td><a href="#sub_data_stride">sub_data_stride</a></td><td>int</td><td><code class="inline">4</code></td></tr>
+</table>
+
+<h3>Property Descriptions</h3>
+
+<h4>use_transforms</h4>
+
+<li><strong>Type:</strong> bool</li>
+<li><strong>Default:</strong> <code class="inline">true</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_use_transforms(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_use_transforms()</code></li>
+
+<p>When enabled, the parent stores a Transform3D per instance. Disable to save memory when you only need data arrays and compute shaders without spatial positioning. Sub-nodes that require transforms (MultiNode3D and below) will not function when disabled.</p>
+
+<p>---</p>
+
+<h4>instance_count</h4>
+
+<li><strong>Type:</strong> int</li>
+<li><strong>Default:</strong> <code class="inline">0</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_instance_count(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_instance_count()</code></li>
+
+<p>The current number of instances. Set this directly to resize the instance list. Triggers a full sync to all child sub-nodes. Not exposed in the inspector -- use <code class="inline">add_instance()</code> and <code class="inline">remove_instance()</code> from scripts.</p>
+
+<p>---</p>
+
+<h4>instance_limit</h4>
+
+<li><strong>Type:</strong> int</li>
+<li><strong>Default:</strong> <code class="inline">0</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_instance_limit(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_instance_limit()</code></li>
+
+<p>Maximum number of instances allowed. Set to <code class="inline">0</code> for unlimited. <code class="inline">add_instance()</code> returns <code class="inline">-1</code> when the limit is reached. If the current count exceeds a newly set limit, instances are trimmed.</p>
+
+<p>---</p>
+
+<h4>data_stride</h4>
+
+<li><strong>Type:</strong> int</li>
+<li><strong>Default:</strong> <code class="inline">4</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_data_stride(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_data_stride()</code></li>
+
+<p>Number of floats stored per instance in the parent-level data array. Use for shared game state accessible from all sub-nodes and GDScript. Minimum 1, maximum 64.</p>
+
+<p>---</p>
+
+<h4>sub_data_stride</h4>
+
+<li><strong>Type:</strong> int</li>
+<li><strong>Default:</strong> <code class="inline">4</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_sub_data_stride(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_sub_data_stride()</code></li>
+
+<p>Number of floats per instance in each sub-node&#x27;s private data array. Must be a multiple of 4 for GPU alignment (automatically rounded up). Controls the stride for all sub-node data arrays and compute shader binding 2.</p>
+
+<h3>Methods</h3>
+
+<table>
+<tr><th>Return</th><th>Name</th></tr>
+<tr><td>int</td><td><a href="#add_instance">add_instance</a>(transform: Transform3D = Transform3D())</td></tr>
+<tr><td>void</td><td><a href="#remove_instance">remove_instance</a>(index: int)</td></tr>
+<tr><td>void</td><td><a href="#clear_instances">clear_instances</a>()</td></tr>
+<tr><td>void</td><td><a href="#set_instance_transform">set_instance_transform</a>(index: int, transform: Transform3D)</td></tr>
+<tr><td>Transform3D</td><td><a href="#get_instance_transform">get_instance_transform</a>(index: int)</td></tr>
+<tr><td>void</td><td><a href="#set_all_transforms">set_all_transforms</a>(transforms: Array)</td></tr>
+<tr><td>void</td><td><a href="#set_positions">set_positions</a>(positions: PackedVector3Array)</td></tr>
+<tr><td>Array</td><td><a href="#get_transform_buffer">get_transform_buffer</a>()</td></tr>
+<tr><td>void</td><td><a href="#mark_dirty">mark_dirty</a>(index: int)</td></tr>
+<tr><td>void</td><td><a href="#mark_all_dirty">mark_all_dirty</a>()</td></tr>
+<tr><td>bool</td><td><a href="#is_dirty">is_dirty</a>(index: int)</td></tr>
+<tr><td>int</td><td><a href="#get_dirty_count">get_dirty_count</a>()</td></tr>
+<tr><td>void</td><td><a href="#begin_batch">begin_batch</a>()</td></tr>
+<tr><td>void</td><td><a href="#end_batch">end_batch</a>()</td></tr>
+<tr><td>void</td><td><a href="#notify_transforms_changed">notify_transforms_changed</a>()</td></tr>
+<tr><td>void</td><td><a href="#set_instance_data">set_instance_data</a>(index: int, channel: int, value: float)</td></tr>
+<tr><td>float</td><td><a href="#get_instance_data">get_instance_data</a>(index: int, channel: int)</td></tr>
+<tr><td>void</td><td><a href="#set_instance_data_vec">set_instance_data_vec</a>(index: int, values: PackedFloat32Array)</td></tr>
+<tr><td>PackedFloat32Array</td><td><a href="#get_instance_data_vec">get_instance_data_vec</a>(index: int)</td></tr>
+</table>
+
+<h3>Method Descriptions</h3>
+
+<h4>add_instance</h4>
+
+<pre><code>
+int add_instance(transform: Transform3D = Transform3D())
+</code></pre>
+
+<p>Add a new instance with the given transform. Returns the new instance index, or <code class="inline">-1</code> if the <code class="inline">instance_limit</code> has been reached.</p>
+
+<p>---</p>
+
+<h4>remove_instance</h4>
+
+<pre><code>
+void remove_instance(index: int)
+</code></pre>
+
+<p>Remove the instance at the given index. Uses swap-and-pop internally -- the last instance moves into the removed slot, so indices may change.</p>
+
+<p>---</p>
+
+<h4>clear_instances</h4>
+
+<pre><code>
+void clear_instances()
+</code></pre>
+
+<p>Remove all instances. Resets the count to zero and frees all internal buffers.</p>
+
+<p>---</p>
+
+<h4>set_instance_transform</h4>
+
+<pre><code>
+void set_instance_transform(index: int, transform: Transform3D)
+</code></pre>
+
+<p>Set the transform for a single instance. Marks it dirty and notifies children at end of frame (or at <code class="inline">end_batch()</code> if batching).</p>
+
+<p>---</p>
+
+<h4>get_instance_transform</h4>
+
+<pre><code>
+Transform3D get_instance_transform(index: int)
+</code></pre>
+
+<p>Get the current transform for an instance.</p>
+
+<p>---</p>
+
+<h4>set_all_transforms</h4>
+
+<pre><code>
+void set_all_transforms(transforms: Array)
+</code></pre>
+
+<p>Replace all instance transforms at once. Resizes the instance count to match the array size.</p>
+
+<p>---</p>
+
+<h4>set_positions</h4>
+
+<pre><code>
+void set_positions(positions: PackedVector3Array)
+</code></pre>
+
+<p>Convenience method that sets identity-basis transforms from an array of positions. Resizes the instance count to match.</p>
+
+<p>---</p>
+
+<h4>get_transform_buffer</h4>
+
+<pre><code>
+Array get_transform_buffer()
+</code></pre>
+
+<p>Returns all instance transforms as an array. Useful for serialization or bulk reads.</p>
+
+<p>---</p>
+
+<h4>mark_dirty</h4>
+
+<pre><code>
+void mark_dirty(index: int)
+</code></pre>
+
+<p>Manually mark a single instance as dirty. Children will update it on next sync. Normally called automatically by <code class="inline">set_instance_transform()</code>.</p>
+
+<p>---</p>
+
+<h4>mark_all_dirty</h4>
+
+<pre><code>
+void mark_all_dirty()
+</code></pre>
+
+<p>Mark all instances as dirty. Forces a full re-sync of all children on the next signal.</p>
+
+<p>---</p>
+
+<h4>is_dirty</h4>
+
+<pre><code>
+bool is_dirty(index: int)
+</code></pre>
+
+<p>Check whether an instance is marked dirty since the last sync.</p>
+
+<p>---</p>
+
+<h4>get_dirty_count</h4>
+
+<pre><code>
+int get_dirty_count()
+</code></pre>
+
+<p>Returns the number of currently dirty instances. Children use this to decide between sparse and full updates.</p>
+
+<p>---</p>
+
+<h4>begin_batch</h4>
+
+<pre><code>
+void begin_batch()
+</code></pre>
+
+<p>Enter batch mode. Transform changes are accumulated silently without emitting signals. Call <code class="inline">end_batch()</code> when done to emit a single <code class="inline">instances_changed</code> signal.</p>
+
+<p>---</p>
+
+<h4>end_batch</h4>
+
+<pre><code>
+void end_batch()
+</code></pre>
+
+<p>Exit batch mode and emit a single <code class="inline">instances_changed</code> signal for all accumulated changes.</p>
+
+<p>---</p>
+
+<h4>notify_transforms_changed</h4>
+
+<pre><code>
+void notify_transforms_changed()
+</code></pre>
+
+<p>Manually trigger an <code class="inline">instances_changed</code> signal. Use when you modify transforms via direct buffer access from C++ and need children to update.</p>
+
+<p>---</p>
+
+<h4>set_instance_data</h4>
+
+<pre><code>
+void set_instance_data(index: int, channel: int, value: float)
+</code></pre>
+
+<p>Set a single float in the parent-level per-instance data array. <code class="inline">channel</code> is the offset within the instance&#x27;s data (<code class="inline">0</code> to <code class="inline">data_stride - 1</code>).</p>
+
+<p>---</p>
+
+<h4>get_instance_data</h4>
+
+<pre><code>
+float get_instance_data(index: int, channel: int)
+</code></pre>
+
+<p>Read a single float from the parent-level per-instance data array.</p>
+
+<p>---</p>
+
+<h4>set_instance_data_vec</h4>
+
+<pre><code>
+void set_instance_data_vec(index: int, values: PackedFloat32Array)
+</code></pre>
+
+<p>Set the entire data vector for a single instance. The array is clamped to <code class="inline">data_stride</code> length.</p>
+
+<p>---</p>
+
+<h4>get_instance_data_vec</h4>
+
+<pre><code>
+PackedFloat32Array get_instance_data_vec(index: int)
+</code></pre>
+
+<p>Get the full data vector for a single instance as a PackedFloat32Array.</p>
+
+<h3>Signals</h3>
+
+<h4>instances_changed</h4>
+
+<pre><code>
+instances_changed()
+</code></pre>
+
+<p>Emitted when the instance list changes -- count, transforms, or data. All child sub-nodes listen to this signal to stay in sync.</p>
+</section>
+<section class="class-section"><h2 class="class-name" id="MultiNodeSub">MultiNodeSub</h2>
+
+<p class="inherits"><strong>Inherits:</strong> Node3D</p>
+
+<p>Base class for all MultiNode child nodes. Handles parent discovery, active filtering, per-instance data, and compute shaders.</p>
+
+<h3>Description</h3>
+
+<p>MultiNodeSub is the base for every child that attaches to a MultiNode parent. It manages which instances this node processes via two filtering layers (<code class="inline">instance_every</code> and <code class="inline">instance_range</code>) ANDed together, owns a per-instance float data array, and can optionally run a GLSL compute shader each frame. Must be a direct child of a MultiNode to function.</p>
+
+<p>Active filtering uses two layers combined with AND logic:</p>
+
+<li><strong>instance_every</strong>: Coarse pattern filter (every Nth instance).</li>
+<li><strong>instance_range</strong>: Excel-style range string for fine-grained inclusion/exclusion.</li>
+
+<p>An instance is active only if it passes both filters. For runtime overrides beyond these two layers, use <code class="inline">set_instance_active()</code> to directly manipulate the active array.</p>
+
+<h3>Properties</h3>
+
+<table>
+<tr><th>Name</th><th>Type</th><th>Default</th></tr>
+<tr><td><a href="#active_count">active_count</a></td><td>int</td><td><code class="inline">0</code></td></tr>
+<tr><td><a href="#instance_every">instance_every</a></td><td>int</td><td><code class="inline">1</code></td></tr>
+<tr><td><a href="#instance_range">instance_range</a></td><td>String</td><td><code class="inline">&quot;&quot;</code></td></tr>
+<tr><td><a href="#compute_code">compute_code</a></td><td>String</td><td><code class="inline">&quot;&quot;</code></td></tr>
+<tr><td><a href="#compute_enabled">compute_enabled</a></td><td>bool</td><td><code class="inline">false</code></td></tr>
+</table>
+
+<h3>Property Descriptions</h3>
+
+<h4>active_count</h4>
+
+<li><strong>Type:</strong> int</li>
+<li><strong>Default:</strong> <code class="inline">0</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_active_count()</code></li>
+
+<p>Read-only. The number of instances currently active on this node after applying all filters.</p>
+
+<p>---</p>
+
+<h4>instance_every</h4>
+
+<li><strong>Type:</strong> int</li>
+<li><strong>Default:</strong> <code class="inline">1</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_instance_every(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_instance_every()</code></li>
+
+<p>Controls which instances this node processes. <code class="inline">1</code> = all instances. <code class="inline">2</code> = every other instance (0, 2, 4...). <code class="inline">3</code> = every third (0, 3, 6...). Negative values select the complement: <code class="inline">-2</code> processes the instances that <code class="inline">+2</code> skips (1, 3, 5...). <code class="inline">0</code> = disabled (no instances processed). Use paired positive/negative values on two nodes to split work across LOD levels.</p>
+
+<p>---</p>
+
+<h4>instance_range</h4>
+
+<li><strong>Type:</strong> String</li>
+<li><strong>Default:</strong> <code class="inline">&quot;&quot;</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_instance_range(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_instance_range()</code></li>
+
+<p>Excel-style range string for fine-grained instance filtering. Tokens are comma-separated and processed left-to-right. Examples:</p>
+
+<li><code class="inline">0:99</code> -- include indices 0 through 99</li>
+<li><code class="inline">1:10,15,20:30</code> -- include 1-10, 15, and 20-30</li>
+<li><code class="inline">-5</code> -- everything except index 5</li>
+<li><code class="inline">0:99,-50:59</code> -- indices 0-99 except 50-59</li>
+<li><code class="inline">1:10,-3,17:20,-18</code> -- 1-10 (minus 3), plus 17-20 (minus 18)</li>
+
+<p>Empty string means no restriction (all instances pass).</p>
+
+<p>---</p>
+
+<h4>compute_code</h4>
+
+<li><strong>Type:</strong> String</li>
+<li><strong>Default:</strong> <code class="inline">&quot;&quot;</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_compute_code(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_compute_code()</code></li>
+
+<p>GLSL compute shader source code. Runs once per instance per frame on a local RenderingDevice. The shader receives:</p>
+
+<li><strong>binding 0:</strong> transforms (3 x vec4 per instance, read/write)</li>
+<li><strong>binding 1:</strong> active flags (uint per instance, read)</li>
+<li><strong>binding 2:</strong> instance data (sub_data_stride floats per instance, read/write)</li>
+
+<p>Push constants: <code class="inline">delta</code> (float), <code class="inline">time</code> (float), <code class="inline">count</code> (uint), <code class="inline">stride</code> (uint).</p>
+
+<p>---</p>
+
+<h4>compute_enabled</h4>
+
+<li><strong>Type:</strong> bool</li>
+<li><strong>Default:</strong> <code class="inline">false</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_compute_enabled(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_compute_enabled()</code></li>
+
+<p>Enable or disable the compute shader dispatch. The shader compiles when this is enabled and <code class="inline">compute_code</code> is set. Disable to stop GPU dispatch without losing the shader code.</p>
+
+<h3>Methods</h3>
+
+<table>
+<tr><th>Return</th><th>Name</th></tr>
+<tr><td>void</td><td><a href="#set_instance_active">set_instance_active</a>(index: int, active: bool)</td></tr>
+<tr><td>bool</td><td><a href="#is_instance_active">is_instance_active</a>(index: int)</td></tr>
+<tr><td>void</td><td><a href="#set_all_active">set_all_active</a>(active: bool)</td></tr>
+<tr><td>int</td><td><a href="#get_active_count">get_active_count</a>()</td></tr>
+<tr><td>MultiNode</td><td><a href="#get_multi_node_parent">get_multi_node_parent</a>()</td></tr>
+<tr><td>int</td><td><a href="#get_data_stride">get_data_stride</a>()</td></tr>
+<tr><td>void</td><td><a href="#set_instance_data">set_instance_data</a>(index: int, channel: int, value: float)</td></tr>
+<tr><td>float</td><td><a href="#get_instance_data">get_instance_data</a>(index: int, channel: int)</td></tr>
+<tr><td>void</td><td><a href="#set_instance_data_vec">set_instance_data_vec</a>(index: int, values: PackedFloat32Array)</td></tr>
+<tr><td>PackedFloat32Array</td><td><a href="#get_instance_data_vec">get_instance_data_vec</a>(index: int)</td></tr>
+</table>
+
+<h3>Method Descriptions</h3>
+
+<h4>set_instance_active</h4>
+
+<pre><code>
+void set_instance_active(index: int, active: bool)
+</code></pre>
+
+<p>Directly set the active state of a single instance. Writes to the computed active array, bypassing the <code class="inline">instance_every</code> and <code class="inline">instance_range</code> filters. Note: the next call to <code class="inline">set_instance_every()</code> or <code class="inline">set_instance_range()</code> will recompute and overwrite this override.</p>
+
+<p>---</p>
+
+<h4>is_instance_active</h4>
+
+<pre><code>
+bool is_instance_active(index: int)
+</code></pre>
+
+<p>Check whether a specific instance is active on this node (after all filters).</p>
+
+<p>---</p>
+
+<h4>set_all_active</h4>
+
+<pre><code>
+void set_all_active(active: bool)
+</code></pre>
+
+<p>Set all instances to active or inactive at once. Directly writes to the active array, bypassing filters.</p>
+
+<p>---</p>
+
+<h4>get_active_count</h4>
+
+<pre><code>
+int get_active_count()
+</code></pre>
+
+<p>Returns the number of currently active instances on this node.</p>
+
+<p>---</p>
+
+<h4>get_multi_node_parent</h4>
+
+<pre><code>
+MultiNode get_multi_node_parent()
+</code></pre>
+
+<p>Returns the parent MultiNode, or <code class="inline">null</code> if this node is not a child of one.</p>
+
+<p>---</p>
+
+<h4>get_data_stride</h4>
+
+<pre><code>
+int get_data_stride()
+</code></pre>
+
+<p>Returns this node&#x27;s per-instance data stride (floats per instance). Inherited from the parent MultiNode&#x27;s <code class="inline">sub_data_stride</code> setting.</p>
+
+<p>---</p>
+
+<h4>set_instance_data</h4>
+
+<pre><code>
+void set_instance_data(index: int, channel: int, value: float)
+</code></pre>
+
+<p>Set a single float in this node&#x27;s per-instance data array. <code class="inline">channel</code> is the offset (<code class="inline">0</code> to <code class="inline">data_stride - 1</code>). This data is private to this sub-node -- not shared with siblings.</p>
+
+<p>---</p>
+
+<h4>get_instance_data</h4>
+
+<pre><code>
+float get_instance_data(index: int, channel: int)
+</code></pre>
+
+<p>Read a single float from this node&#x27;s per-instance data array.</p>
+
+<p>---</p>
+
+<h4>set_instance_data_vec</h4>
+
+<pre><code>
+void set_instance_data_vec(index: int, values: PackedFloat32Array)
+</code></pre>
+
+<p>Set the entire data vector for a single instance on this node.</p>
+
+<p>---</p>
+
+<h4>get_instance_data_vec</h4>
+
+<pre><code>
+PackedFloat32Array get_instance_data_vec(index: int)
+</code></pre>
+
+<p>Get the full data vector for a single instance on this node.</p>
+</section>
+<section class="class-section"><h2 class="class-name" id="MultiNode3D">MultiNode3D</h2>
+
+<p class="inherits"><strong>Inherits:</strong> MultiNodeSub</p>
+
+<p>Base class for spatial MultiNode children. Adds a transform offset applied to each instance.</p>
+
+<h3>Description</h3>
+
+<p>MultiNode3D extends MultiNodeSub with spatial awareness. It provides a configurable transform offset (position, rotation, scale) that is applied to every instance, and a flag to control whether instance rotation/scale is inherited. All concrete spatial sub-nodes (Mesh, Collider, Audio, etc.) inherit from this class. Requires the parent MultiNode to have <code class="inline">use_transforms</code> enabled.</p>
+
+<h3>Properties</h3>
+
+<table>
+<tr><th>Name</th><th>Type</th><th>Default</th></tr>
+<tr><td><a href="#offset_position">offset_position</a></td><td>Vector3</td><td><code class="inline">Vector3(0, 0, 0)</code></td></tr>
+<tr><td><a href="#offset_rotation">offset_rotation</a></td><td>Vector3</td><td><code class="inline">Vector3(0, 0, 0)</code></td></tr>
+<tr><td><a href="#offset_scale">offset_scale</a></td><td>Vector3</td><td><code class="inline">Vector3(1, 1, 1)</code></td></tr>
+<tr><td><a href="#use_instance_basis">use_instance_basis</a></td><td>bool</td><td><code class="inline">true</code></td></tr>
+</table>
+
+<h3>Property Descriptions</h3>
+
+<h4>offset_position</h4>
+
+<li><strong>Type:</strong> Vector3</li>
+<li><strong>Default:</strong> <code class="inline">Vector3(0, 0, 0)</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_offset_position(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_offset_position()</code></li>
+
+<p>Position offset applied to every instance, in local space. Use this to shift child geometry relative to the instance origin -- for example, raising a label above a character&#x27;s head.</p>
+
+<p>---</p>
+
+<h4>offset_rotation</h4>
+
+<li><strong>Type:</strong> Vector3</li>
+<li><strong>Default:</strong> <code class="inline">Vector3(0, 0, 0)</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_offset_rotation(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_offset_rotation()</code></li>
+
+<p>Rotation offset applied to every instance, in radians (displayed as degrees in the inspector). Combines with <code class="inline">offset_position</code> and <code class="inline">offset_scale</code> to form the transform offset.</p>
+
+<p>---</p>
+
+<h4>offset_scale</h4>
+
+<li><strong>Type:</strong> Vector3</li>
+<li><strong>Default:</strong> <code class="inline">Vector3(1, 1, 1)</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_offset_scale(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_offset_scale()</code></li>
+
+<p>Scale offset applied to every instance. Multiplied into the transform offset along with position and rotation.</p>
+
+<p>---</p>
+
+<h4>use_instance_basis</h4>
+
+<li><strong>Type:</strong> bool</li>
+<li><strong>Default:</strong> <code class="inline">true</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_use_instance_basis(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_use_instance_basis()</code></li>
+
+<p>When enabled, each instance inherits the rotation and scale from its parent transform. When disabled, only the position is used -- useful for labels, lights, and other elements that should stay upright regardless of instance orientation.</p>
+
+<h3>Methods</h3>
+
+<table>
+<tr><th>Return</th><th>Name</th></tr>
+<tr><td>Transform3D</td><td><a href="#get_transform_offset">get_transform_offset</a>()</td></tr>
+<tr><td>Transform3D</td><td><a href="#compute_instance_transform">compute_instance_transform</a>(instance_xform: Transform3D)</td></tr>
+</table>
+
+<h3>Method Descriptions</h3>
+
+<h4>get_transform_offset</h4>
+
+<pre><code>
+Transform3D get_transform_offset()
+</code></pre>
+
+<p>Returns the combined transform offset built from <code class="inline">offset_position</code>, <code class="inline">offset_rotation</code>, and <code class="inline">offset_scale</code>.</p>
+
+<p>---</p>
+
+<h4>compute_instance_transform</h4>
+
+<pre><code>
+Transform3D compute_instance_transform(instance_xform: Transform3D)
+</code></pre>
+
+<p>Compute the final transform for an instance by applying the offset and <code class="inline">use_instance_basis</code> flag to the given instance transform. Used internally by all spatial sub-nodes.</p>
+</section>
+<section class="class-section"><h2 class="class-name" id="MultiNodeVisual3D">MultiNodeVisual3D</h2>
+
+<p class="inherits"><strong>Inherits:</strong> MultiNode3D</p>
+
+<p>Base class for visual MultiNode children. Manages shadow casting, render layers, visibility range, and per-instance color tinting.</p>
+
+<h3>Description</h3>
+
+<p>MultiNodeVisual3D is the base for all rendering-related sub-nodes (Mesh, Label, Sprite, Particle, Decal, Light). It owns shared visual properties pushed to the RenderingServer -- shadow casting, render layers, visibility range -- and a per-instance color tint array. Subclasses create the actual visual instances and call <code class="inline">_apply_visual_properties()</code> to push these settings.</p>
+
+<h3>Properties</h3>
+
+<table>
+<tr><th>Name</th><th>Type</th><th>Default</th></tr>
+<tr><td><a href="#cast_shadow">cast_shadow</a></td><td>ShadowCastingSetting</td><td><code class="inline">SHADOW_CASTING_ON (1)</code></td></tr>
+<tr><td><a href="#render_layers">render_layers</a></td><td>int</td><td><code class="inline">1</code></td></tr>
+<tr><td><a href="#visibility_range_begin">visibility_range_begin</a></td><td>float</td><td><code class="inline">0.0</code></td></tr>
+<tr><td><a href="#visibility_range_end">visibility_range_end</a></td><td>float</td><td><code class="inline">0.0</code></td></tr>
+<tr><td><a href="#tint">tint</a></td><td>Color</td><td><code class="inline">Color(1, 1, 1, 1)</code></td></tr>
+</table>
+
+<h3>Property Descriptions</h3>
+
+<h4>cast_shadow</h4>
+
+<li><strong>Type:</strong> int (ShadowCastingSetting)</li>
+<li><strong>Default:</strong> <code class="inline">1</code> (<code class="inline">SHADOW_CASTING_ON</code>)</li>
+<li><strong>Setter:</strong> <code class="inline">set_cast_shadow(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_cast_shadow()</code></li>
+
+<p>Controls shadow casting for all instances rendered by this node. <code class="inline">Off</code> = no shadows. <code class="inline">On</code> = standard shadows. <code class="inline">Double-Sided</code> = shadows from both sides of faces. <code class="inline">Shadows Only</code> = invisible but still casts shadows.</p>
+
+<p>---</p>
+
+<h4>render_layers</h4>
+
+<li><strong>Type:</strong> int</li>
+<li><strong>Default:</strong> <code class="inline">1</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_render_layers(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_render_layers()</code></li>
+
+<p>The render layer bitmask for all instances on this node. Only cameras with matching <code class="inline">cull_mask</code> bits will see these instances. Use to separate visual layers (e.g., minimap, main view).</p>
+
+<p>---</p>
+
+<h4>visibility_range_begin</h4>
+
+<li><strong>Type:</strong> float</li>
+<li><strong>Default:</strong> <code class="inline">0.0</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_visibility_range_begin(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_visibility_range_begin()</code></li>
+
+<p>Minimum distance from the camera at which instances become visible. Set to <code class="inline">0</code> to show at all close distances. Use with <code class="inline">visibility_range_end</code> for LOD-style distance culling.</p>
+
+<p>---</p>
+
+<h4>visibility_range_end</h4>
+
+<li><strong>Type:</strong> float</li>
+<li><strong>Default:</strong> <code class="inline">0.0</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_visibility_range_end(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_visibility_range_end()</code></li>
+
+<p>Maximum distance from the camera at which instances are visible. Set to <code class="inline">0</code> to disable distance culling. Instances farther than this are hidden.</p>
+
+<p>---</p>
+
+<h4>tint</h4>
+
+<li><strong>Type:</strong> Color</li>
+<li><strong>Default:</strong> <code class="inline">Color(1, 1, 1, 1)</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_tint(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_tint()</code></li>
+
+<p>Color filter applied to all instances on this node. White means no effect. Multiplied with per-instance colors to produce the final color. Useful for global effects like damage flash or team coloring.</p>
+
+<h3>Methods</h3>
+
+<table>
+<tr><th>Return</th><th>Name</th></tr>
+<tr><td>void</td><td><a href="#set_instance_color">set_instance_color</a>(index: int, color: Color)</td></tr>
+<tr><td>Color</td><td><a href="#get_instance_color">get_instance_color</a>(index: int)</td></tr>
+<tr><td>void</td><td><a href="#set_all_colors">set_all_colors</a>(colors: PackedColorArray)</td></tr>
+<tr><td>void</td><td><a href="#resize_colors">resize_colors</a>(count: int)</td></tr>
+</table>
+
+<h3>Method Descriptions</h3>
+
+<h4>set_instance_color</h4>
+
+<pre><code>
+void set_instance_color(index: int, color: Color)
+</code></pre>
+
+<p>Set the color for a single instance. Multiplied by the node <code class="inline">tint</code> to produce the final color. White means the instance uses only the node tint.</p>
+
+<p>---</p>
+
+<h4>get_instance_color</h4>
+
+<pre><code>
+Color get_instance_color(index: int)
+</code></pre>
+
+<p>Get the raw per-instance color (before tint multiplication).</p>
+
+<p>---</p>
+
+<h4>set_all_colors</h4>
+
+<pre><code>
+void set_all_colors(colors: PackedColorArray)
+</code></pre>
+
+<p>Replace all per-instance colors at once. Triggers a bulk update to the rendering backend.</p>
+
+<p>---</p>
+
+<h4>resize_colors</h4>
+
+<pre><code>
+void resize_colors(count: int)
+</code></pre>
+
+<p>Resize the per-instance color array to match the given count. New entries are filled with white (<code class="inline">Color(1, 1, 1, 1)</code>). Typically called internally when the instance count changes.</p>
+
+<h3>Enumerations</h3>
+
+<h4>enum ShadowCastingSetting</h4>
+
+<table>
+<tr><th>Name</th><th>Value</th><th>Description</th></tr>
+<tr><td>SHADOW_CASTING_OFF</td><td><code class="inline">0</code></td><td>No shadow casting.</td></tr>
+<tr><td>SHADOW_CASTING_ON</td><td><code class="inline">1</code></td><td>Standard shadow casting.</td></tr>
+<tr><td>SHADOW_CASTING_DOUBLE_SIDED</td><td><code class="inline">2</code></td><td>Cast shadows from both sides of faces.</td></tr>
+<tr><td>SHADOW_CASTING_SHADOWS_ONLY</td><td><code class="inline">3</code></td><td>Invisible but still casts shadows.</td></tr>
+</table>
+</section>
+<section class="class-section"><h2 class="class-name" id="MultiNodeMesh">MultiNodeMesh</h2>
+
+<p class="inherits"><strong>Inherits:</strong> MultiNodeVisual3D</p>
+
+<p>Renders a mesh for each instance using GPU-instanced MultiMesh.</p>
+
+<h3>Description</h3>
+
+<p>MultiNodeMesh renders a shared mesh for every active instance in the parent MultiNode using a single MultiMesh draw call. Inactive instances are hidden via zero-scale transform. Supports per-instance color modulation and material overrides. This is the primary visual node for most use cases.</p>
+
+<h3>Properties</h3>
+
+<table>
+<tr><th>Name</th><th>Type</th><th>Default</th></tr>
+<tr><td><a href="#mesh">mesh</a></td><td>Mesh</td><td><code class="inline">null</code></td></tr>
+<tr><td><a href="#material_override">material_override</a></td><td>Material</td><td><code class="inline">null</code></td></tr>
+<tr><td><a href="#use_instance_colors">use_instance_colors</a></td><td>bool</td><td><code class="inline">false</code></td></tr>
+</table>
+
+<h3>Property Descriptions</h3>
+
+<h4>mesh</h4>
+
+<li><strong>Type:</strong> Mesh</li>
+<li><strong>Default:</strong> <code class="inline">null</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_mesh(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_mesh()</code></li>
+
+<p>The mesh resource rendered for each instance. All instances share this single mesh. Assign any Mesh resource (BoxMesh, SphereMesh, imported .obj, etc.).</p>
+
+<p>---</p>
+
+<h4>material_override</h4>
+
+<li><strong>Type:</strong> Material</li>
+<li><strong>Default:</strong> <code class="inline">null</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_material_override(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_material_override()</code></li>
+
+<p>Optional material that overrides the mesh&#x27;s built-in material for all instances. Leave empty to use the mesh&#x27;s own material.</p>
+
+<p>---</p>
+
+<h4>use_instance_colors</h4>
+
+<li><strong>Type:</strong> bool</li>
+<li><strong>Default:</strong> <code class="inline">false</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_use_instance_colors(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_use_instance_colors()</code></li>
+
+<p>When enabled, per-instance colors from the MultiNodeVisual3D base class are passed to the MultiMesh. Your shader must read <code class="inline">COLOR</code> or <code class="inline">INSTANCE_COLOR</code> to use them. Enabling this allocates an extra 4 floats per instance in the GPU buffer.</p>
+</section>
+<section class="class-section"><h2 class="class-name" id="MultiNodeCollider">MultiNodeCollider</h2>
+
+<p class="inherits"><strong>Inherits:</strong> MultiNode3D</p>
+
+<p>Creates and manages physics bodies for each instance via PhysicsServer3D.</p>
+
+<h3>Description</h3>
+
+<p>MultiNodeCollider creates a physics body for each active instance in the parent MultiNode. Bodies can be static, kinematic, or rigid. Rigid bodies read their transforms back from the physics engine each frame, automatically skipping sleeping bodies. Inactive instances have their bodies removed from the physics space. Use <code class="inline">get_instance_from_body()</code> to identify which instance was hit in collision callbacks.</p>
+
+<h3>Properties</h3>
+
+<table>
+<tr><th>Name</th><th>Type</th><th>Default</th></tr>
+<tr><td><a href="#shape">shape</a></td><td>Shape3D</td><td><code class="inline">null</code></td></tr>
+<tr><td><a href="#body_type">body_type</a></td><td>BodyType</td><td><code class="inline">BODY_TYPE_STATIC (0)</code></td></tr>
+<tr><td><a href="#collision_layer">collision_layer</a></td><td>int</td><td><code class="inline">1</code></td></tr>
+<tr><td><a href="#collision_mask">collision_mask</a></td><td>int</td><td><code class="inline">1</code></td></tr>
+<tr><td><a href="#self_collision">self_collision</a></td><td>bool</td><td><code class="inline">true</code></td></tr>
+<tr><td><a href="#preserve_velocity">preserve_velocity</a></td><td>bool</td><td><code class="inline">false</code></td></tr>
+</table>
+
+<h3>Property Descriptions</h3>
+
+<h4>shape</h4>
+
+<li><strong>Type:</strong> Shape3D</li>
+<li><strong>Default:</strong> <code class="inline">null</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_shape(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_shape()</code></li>
+
+<p>The collision shape used for every instance. All instances share this single shape resource. Assign any Shape3D (BoxShape3D, SphereShape3D, ConvexPolygonShape3D, etc.).</p>
+
+<p>---</p>
+
+<h4>body_type</h4>
+
+<li><strong>Type:</strong> int (BodyType)</li>
+<li><strong>Default:</strong> <code class="inline">0</code> (<code class="inline">BODY_TYPE_STATIC</code>)</li>
+<li><strong>Setter:</strong> <code class="inline">set_body_type(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_body_type()</code></li>
+
+<p>The physics body type for all instances. <code class="inline">Static</code> = immovable, no physics simulation. <code class="inline">Kinematic</code> = moved by code, pushes rigid bodies. <code class="inline">Rigid</code> = full physics simulation with gravity and collisions, transforms are read back from the physics engine each frame.</p>
+
+<p>---</p>
+
+<h4>collision_layer</h4>
+
+<li><strong>Type:</strong> int</li>
+<li><strong>Default:</strong> <code class="inline">1</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_collision_layer(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_collision_layer()</code></li>
+
+<p>The physics layer bitmask that these bodies exist on. Other bodies detect collisions with these instances based on their <code class="inline">collision_mask</code>.</p>
+
+<p>---</p>
+
+<h4>collision_mask</h4>
+
+<li><strong>Type:</strong> int</li>
+<li><strong>Default:</strong> <code class="inline">1</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_collision_mask(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_collision_mask()</code></li>
+
+<p>The physics layer bitmask that these bodies scan for collisions against. Only bodies on matching layers are detected.</p>
+
+<p>---</p>
+
+<h4>self_collision</h4>
+
+<li><strong>Type:</strong> bool</li>
+<li><strong>Default:</strong> <code class="inline">true</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_self_collision(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_self_collision()</code></li>
+
+<p>When enabled, instances can collide with each other. When disabled, rigid body instances are placed on an internal physics layer (layer 20) to prevent self-collision. Note: this layer override only affects rigid bodies -- static and kinematic bodies always use your configured <code class="inline">collision_layer</code> since they cannot self-collide. External objects must include layer 20 in their collision mask to detect rigid bodies with <code class="inline">self_collision</code> disabled.</p>
+
+<p>---</p>
+
+<h4>preserve_velocity</h4>
+
+<li><strong>Type:</strong> bool</li>
+<li><strong>Default:</strong> <code class="inline">false</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_preserve_velocity(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_preserve_velocity()</code></li>
+
+<p>When enabled, linear and angular velocity are saved to the parent MultiNode&#x27;s velocity bus when a body is removed from the physics space (deactivated), and restored when it re-enters. Use for seamless collider hot-swapping between LOD levels.</p>
+
+<h3>Methods</h3>
+
+<table>
+<tr><th>Return</th><th>Name</th></tr>
+<tr><td>int</td><td><a href="#get_instance_from_body">get_instance_from_body</a>(body_rid: RID)</td></tr>
+<tr><td>RID</td><td><a href="#get_body_rid">get_body_rid</a>(index: int)</td></tr>
+</table>
+
+<h3>Method Descriptions</h3>
+
+<h4>get_instance_from_body</h4>
+
+<pre><code>
+int get_instance_from_body(body_rid: RID)
+</code></pre>
+
+<p>Map a physics body RID back to an instance index. Returns <code class="inline">-1</code> if the RID does not belong to this node. Use in collision callbacks to identify which instance was involved.</p>
+
+<p>---</p>
+
+<h4>get_body_rid</h4>
+
+<pre><code>
+RID get_body_rid(index: int)
+</code></pre>
+
+<p>Get the PhysicsServer3D body RID for a specific instance. Use for direct physics queries or applying forces to individual instances.</p>
+
+<h3>Enumerations</h3>
+
+<h4>enum BodyType</h4>
+
+<table>
+<tr><th>Name</th><th>Value</th><th>Description</th></tr>
+<tr><td>BODY_TYPE_STATIC</td><td><code class="inline">0</code></td><td>Immovable body. No physics simulation.</td></tr>
+<tr><td>BODY_TYPE_KINEMATIC</td><td><code class="inline">1</code></td><td>Code-driven body that pushes other objects.</td></tr>
+<tr><td>BODY_TYPE_RIGID</td><td><code class="inline">2</code></td><td>Fully simulated rigid body with gravity and collisions.</td></tr>
+</table>
+</section>
+<section class="class-section"><h2 class="class-name" id="MultiNodeArea">MultiNodeArea</h2>
+
+<p class="inherits"><strong>Inherits:</strong> <a href="MultiNode3D.md">MultiNode3D</a></p>
+
+<p>Detection zones for each instance via PhysicsServer3D areas.</p>
+
+<h3>Description</h3>
+
+<p>Creates a PhysicsServer3D area for each active instance in the parent MultiNode. Areas detect overlapping bodies without applying physics forces, making them ideal for spatial queries and trigger-based gameplay logic. Each area is positioned at its instance&#x27;s world transform (with the MultiNode3D offset applied) and updated automatically when instances move.</p>
+
+<p>Use cases include trigger zones, pickup detection, proximity alerts, and checkpoints. The area pool is managed internally -- areas are created when instances become active and removed when they become inactive.</p>
+
+<p>Assign a <code class="inline">Shape3D</code> resource to define the detection volume. All areas share the same shape, collision layer, and collision mask. To identify which instance an overlapping area belongs to, use <code class="inline">get_instance_from_area()</code> with the area RID reported by the physics system.</p>
+
+<h3>Properties</h3>
+
+<table>
+<tr><th>Name</th><th>Type</th><th>Default</th></tr>
+<tr><td><a href="#shape">shape</a></td><td>Shape3D</td><td><code class="inline">null</code></td></tr>
+<tr><td><a href="#collision_layer">collision_layer</a></td><td>int</td><td><code class="inline">1</code></td></tr>
+<tr><td><a href="#collision_mask">collision_mask</a></td><td>int</td><td><code class="inline">1</code></td></tr>
+<tr><td><a href="#monitorable">monitorable</a></td><td>bool</td><td><code class="inline">false</code></td></tr>
+</table>
+
+<h3>Property Descriptions</h3>
+
+<h4>shape</h4>
+
+<pre><code>
+Shape3D shape = null
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_shape(value: Shape3D)</code></li>
+<li>*Getter:* <code class="inline">get_shape() -&gt; Shape3D</code></li>
+
+<p>The collision shape used for all area instances. All areas share this single shape resource. Supports any Shape3D subclass: BoxShape3D, SphereShape3D, CapsuleShape3D, CylinderShape3D, ConvexPolygonShape3D, ConcavePolygonShape3D, etc.</p>
+
+<p>Changing the shape rebuilds all active areas. Set to <code class="inline">null</code> to disable area detection.</p>
+
+<p>---</p>
+
+<h4>collision_layer</h4>
+
+<pre><code>
+int collision_layer = 1
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_collision_layer(value: int)</code></li>
+<li>*Getter:* <code class="inline">get_collision_layer() -&gt; int</code></li>
+
+<p>The physics layers this area occupies. Other physics objects detect this area when their collision mask overlaps with this layer value. This is a bitmask -- use powers of two to assign areas to specific layers (e.g., <code class="inline">1</code> = layer 1, <code class="inline">4</code> = layer 3, <code class="inline">5</code> = layers 1 and 3).</p>
+
+<p>---</p>
+
+<h4>collision_mask</h4>
+
+<pre><code>
+int collision_mask = 1
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_collision_mask(value: int)</code></li>
+<li>*Getter:* <code class="inline">get_collision_mask() -&gt; int</code></li>
+
+<p>The physics layers this area scans for overlapping bodies and areas. Only objects whose collision layer overlaps with this mask will be detected. This is a bitmask -- combine layers with bitwise OR.</p>
+
+<p>---</p>
+
+<h4>monitorable</h4>
+
+<pre><code>
+bool monitorable = false
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_monitorable(value: bool)</code></li>
+<li>*Getter:* <code class="inline">get_monitorable() -&gt; bool</code></li>
+
+<p>If <code class="inline">true</code>, other Area3D nodes can detect these areas. If <code class="inline">false</code>, the areas are invisible to other areas&#x27; <code class="inline">body_entered</code>/<code class="inline">area_entered</code> signals, which reduces physics server overhead.</p>
+
+<p>Set to <code class="inline">true</code> when you need other areas in your scene to react to MultiNodeArea instances (e.g., an NPC&#x27;s detection zone sensing a MultiNode checkpoint). Leave <code class="inline">false</code> when you only need to query overlaps from the MultiNode side.</p>
+
+<h3>Methods</h3>
+
+<table>
+<tr><th>Return</th><th>Name</th></tr>
+<tr><td>RID</td><td><a href="#get_instance_area_rid">get_instance_area_rid</a></td></tr>
+<tr><td>int</td><td><a href="#get_instance_from_area">get_instance_from_area</a></td></tr>
+</table>
+
+<h3>Method Descriptions</h3>
+
+<h4>get_instance_area_rid</h4>
+
+<pre><code>
+RID get_instance_area_rid(index: int)
+</code></pre>
+
+<p>Returns the PhysicsServer3D area RID for the given instance index. Use this RID for direct PhysicsServer3D queries, such as calling <code class="inline">PhysicsServer3D.area_get_shape_count()</code> or setting up custom monitoring.</p>
+
+<p>Returns an empty RID if the instance index is out of range or the instance is not active.</p>
+
+<p>---</p>
+
+<h4>get_instance_from_area</h4>
+
+<pre><code>
+int get_instance_from_area(area_rid: RID)
+</code></pre>
+
+<p>Maps a PhysicsServer3D area RID back to its instance index. This is the reverse lookup of <code class="inline">get_instance_area_rid()</code> and is the primary way to identify which instance triggered a physics callback.</p>
+
+<p>Returns <code class="inline">-1</code> if the RID does not belong to any instance managed by this node. Typical usage is inside an <code class="inline">area_entered</code> or <code class="inline">body_entered</code> callback on another node, where you receive the collider RID and need to know which MultiNode instance it corresponds to.</p>
+</section>
+<section class="class-section"><h2 class="class-name" id="MultiNodeRaycast">MultiNodeRaycast</h2>
+
+<p class="inherits"><strong>Inherits:</strong> <a href="MultiNode3D.md">MultiNode3D</a></p>
+
+<p>Per-instance raycasting for ground detection, line of sight, and surface probing.</p>
+
+<h3>Description</h3>
+
+<p>Casts a ray from each active instance every physics frame. Results are stored per-instance and can be queried at any time. The ray origin is the instance&#x27;s world position (with MultiNode3D offset applied), and the ray extends in <code class="inline">cast_direction</code> for <code class="inline">cast_length</code> units.</p>
+
+<p>Automatically excludes sibling MultiNodeCollider bodies from raycast results. This prevents instances from hitting their own collision shapes, which is the expected behavior for ground detection and terrain following. If there is no sibling MultiNodeCollider, no exclusions are applied.</p>
+
+<p>Raycast results are updated during <code class="inline">_physics_process</code> and remain valid until the next physics frame. Query methods return the most recent result. If an instance is not active, its raycast result is cleared (not colliding).</p>
+
+<p>Common use cases: ground detection for vehicles or characters, line-of-sight checks for AI, terrain-following flight, wall detection, surface normal probing for alignment, and distance-to-ground calculations.</p>
+
+<h3>Properties</h3>
+
+<table>
+<tr><th>Name</th><th>Type</th><th>Default</th></tr>
+<tr><td><a href="#cast_direction">cast_direction</a></td><td>Vector3</td><td><code class="inline">Vector3(0, -1, 0)</code></td></tr>
+<tr><td><a href="#cast_length">cast_length</a></td><td>float</td><td><code class="inline">10.0</code></td></tr>
+<tr><td><a href="#collision_mask">collision_mask</a></td><td>int</td><td><code class="inline">1</code></td></tr>
+<tr><td><a href="#hit_from_inside">hit_from_inside</a></td><td>bool</td><td><code class="inline">false</code></td></tr>
+</table>
+
+<h3>Property Descriptions</h3>
+
+<h4>cast_direction</h4>
+
+<pre><code>
+Vector3 cast_direction = Vector3(0, -1, 0)
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_cast_direction(value: Vector3)</code></li>
+<li>*Getter:* <code class="inline">get_cast_direction() -&gt; Vector3</code></li>
+
+<p>The direction the ray is cast in local space, relative to each instance&#x27;s transform. The default value <code class="inline">(0, -1, 0)</code> casts straight down, which is typical for ground detection.</p>
+
+<p>The direction is normalized internally. If <code class="inline">use_instance_basis</code> is enabled on the MultiNode3D parent, the ray direction rotates with each instance&#x27;s basis, allowing forward-facing raycasts for line-of-sight checks.</p>
+
+<p>---</p>
+
+<h4>cast_length</h4>
+
+<pre><code>
+float cast_length = 10.0
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_cast_length(value: float)</code></li>
+<li>*Getter:* <code class="inline">get_cast_length() -&gt; float</code></li>
+
+<p>The maximum length of the ray in world units. Longer rays are more expensive. Set this to the minimum distance needed for your use case -- for ground detection, slightly more than the expected maximum height above ground.</p>
+
+<p>---</p>
+
+<h4>collision_mask</h4>
+
+<pre><code>
+int collision_mask = 1
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_collision_mask(value: int)</code></li>
+<li>*Getter:* <code class="inline">get_collision_mask() -&gt; int</code></li>
+
+<p>The physics layers the ray detects. Only colliders whose collision layer overlaps with this mask will produce a hit. This is a bitmask -- combine layers with bitwise OR.</p>
+
+<p>---</p>
+
+<h4>hit_from_inside</h4>
+
+<pre><code>
+bool hit_from_inside = false
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_hit_from_inside(value: bool)</code></li>
+<li>*Getter:* <code class="inline">get_hit_from_inside() -&gt; bool</code></li>
+
+<p>If <code class="inline">true</code>, the ray detects colliders even when the ray origin is inside the collider shape. If <code class="inline">false</code>, rays starting inside a shape pass through it without registering a hit.</p>
+
+<p>Enable this when instances may overlap with geometry and you still need accurate hit detection (e.g., instances embedded in terrain during spawning).</p>
+
+<h3>Methods</h3>
+
+<table>
+<tr><th>Return</th><th>Name</th></tr>
+<tr><td>bool</td><td><a href="#is_instance_colliding">is_instance_colliding</a></td></tr>
+<tr><td>Vector3</td><td><a href="#get_instance_hit_point">get_instance_hit_point</a></td></tr>
+<tr><td>Vector3</td><td><a href="#get_instance_hit_normal">get_instance_hit_normal</a></td></tr>
+<tr><td>float</td><td><a href="#get_instance_hit_distance">get_instance_hit_distance</a></td></tr>
+<tr><td>RID</td><td><a href="#get_instance_hit_rid">get_instance_hit_rid</a></td></tr>
+</table>
+
+<h3>Method Descriptions</h3>
+
+<h4>is_instance_colliding</h4>
+
+<pre><code>
+bool is_instance_colliding(index: int)
+</code></pre>
+
+<p>Returns <code class="inline">true</code> if the ray for the given instance hit a collider during the most recent physics frame. Returns <code class="inline">false</code> if no collision occurred, the instance is inactive, or the index is out of range.</p>
+
+<p>---</p>
+
+<h4>get_instance_hit_point</h4>
+
+<pre><code>
+Vector3 get_instance_hit_point(index: int)
+</code></pre>
+
+<p>Returns the world-space position where the ray intersected a collider for the given instance. Only valid when <code class="inline">is_instance_colliding()</code> returns <code class="inline">true</code>. Returns <code class="inline">Vector3.ZERO</code> if there was no collision.</p>
+
+<p>---</p>
+
+<h4>get_instance_hit_normal</h4>
+
+<pre><code>
+Vector3 get_instance_hit_normal(index: int)
+</code></pre>
+
+<p>Returns the surface normal at the collision point for the given instance. The normal points away from the collider surface. Useful for aligning instances to terrain slopes or calculating reflection angles.</p>
+
+<p>Returns <code class="inline">Vector3.ZERO</code> if there was no collision.</p>
+
+<p>---</p>
+
+<h4>get_instance_hit_distance</h4>
+
+<pre><code>
+float get_instance_hit_distance(index: int)
+</code></pre>
+
+<p>Returns the distance from the ray origin to the hit point for the given instance. This is the straight-line distance along the ray direction, not the Euclidean distance between two arbitrary points.</p>
+
+<p>Returns <code class="inline">0.0</code> if there was no collision.</p>
+
+<p>---</p>
+
+<h4>get_instance_hit_rid</h4>
+
+<pre><code>
+RID get_instance_hit_rid(index: int)
+</code></pre>
+
+<p>Returns the PhysicsServer3D collider RID that the ray hit for the given instance. Use this to identify what object was hit via PhysicsServer3D queries.</p>
+
+<p>Returns an empty RID if there was no collision.</p>
+</section>
+<section class="class-section"><h2 class="class-name" id="MultiNodeAudio">MultiNodeAudio</h2>
+
+<p class="inherits"><strong>Inherits:</strong> <a href="MultiNode3D.md">MultiNode3D</a></p>
+
+<p>Software-mixed spatial audio for all instances through a single audio channel.</p>
+
+<h3>Description</h3>
+
+<p>Decodes an AudioStreamWAV resource to raw PCM samples, then software-mixes all playing instances into a single AudioStreamGenerator output. Each playing instance contributes to the mix with per-instance distance attenuation, stereo panning, pitch scaling, and optional distance-based low-pass filtering. All instances share one audio channel -- there is no voice limit.</p>
+
+<p>The source audio must be an <strong>AudioStreamWAV</strong> in 16-bit or 8-bit format. When importing WAV files, set <strong>Compress Mode</strong> to <strong>Disabled</strong> in the Godot import dock. Compressed formats (IMA ADPCM, QOA) are not supported. The stream is decoded once at setup time and stored as raw float samples for efficient mixing.</p>
+
+<p>Spatial audio is computed relative to the current camera position. Distance attenuation follows an inverse-distance model: full volume at <code class="inline">reference_distance</code>, falling off to silence at <code class="inline">max_distance</code>. Stereo panning is based on the horizontal angle between the camera and each instance. When <code class="inline">distance_filter_enabled</code> is true, a single-pole low-pass filter attenuates high frequencies at greater distances, simulating natural sound propagation.</p>
+
+<p>Per-instance playback is fully independent. Each instance can be playing, paused, or stopped with its own playback position, volume, and pitch. The <code class="inline">autoplay</code> property starts all active instances when the node enters the tree.</p>
+
+<p>When <code class="inline">auto_pause</code> is enabled (default), the audio output pauses automatically if no instances are currently playing, avoiding unnecessary mix processing.</p>
+
+<h3>Properties</h3>
+
+<table>
+<tr><th>Name</th><th>Type</th><th>Default</th></tr>
+<tr><td><a href="#stream">stream</a></td><td>AudioStream</td><td><code class="inline">null</code></td></tr>
+<tr><td><a href="#volume_db">volume_db</a></td><td>float</td><td><code class="inline">0.0</code></td></tr>
+<tr><td><a href="#amplify_db">amplify_db</a></td><td>float</td><td><code class="inline">0.0</code></td></tr>
+<tr><td><a href="#bus">bus</a></td><td>StringName</td><td><code class="inline">&quot;Master&quot;</code></td></tr>
+<tr><td><a href="#loop">loop</a></td><td>bool</td><td><code class="inline">false</code></td></tr>
+<tr><td><a href="#autoplay">autoplay</a></td><td>bool</td><td><code class="inline">false</code></td></tr>
+<tr><td><a href="#max_distance">max_distance</a></td><td>float</td><td><code class="inline">50.0</code></td></tr>
+<tr><td><a href="#reference_distance">reference_distance</a></td><td>float</td><td><code class="inline">1.0</code></td></tr>
+<tr><td><a href="#auto_pause">auto_pause</a></td><td>bool</td><td><code class="inline">true</code></td></tr>
+<tr><td><a href="#pitch_randomization">pitch_randomization</a></td><td>float</td><td><code class="inline">0.0</code></td></tr>
+<tr><td><a href="#volume_randomization">volume_randomization</a></td><td>float</td><td><code class="inline">0.0</code></td></tr>
+<tr><td><a href="#distance_filter_enabled">distance_filter_enabled</a></td><td>bool</td><td><code class="inline">true</code></td></tr>
+<tr><td><a href="#distance_filter_strength">distance_filter_strength</a></td><td>float</td><td><code class="inline">0.5</code></td></tr>
+</table>
+
+<h3>Property Descriptions</h3>
+
+<h4>stream</h4>
+
+<pre><code>
+AudioStream stream = null
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_stream(value: AudioStream)</code></li>
+<li>*Getter:* <code class="inline">get_stream() -&gt; AudioStream</code></li>
+
+<p>The audio stream to play. Must be an AudioStreamWAV resource with 16-bit or 8-bit sample format. The stream is decoded to raw PCM on assignment. Changing the stream re-decodes and stops all playback.</p>
+
+<p>Import settings: set <strong>Compress Mode</strong> to <strong>Disabled</strong> in the Godot import dock. Compressed or Vorbis streams are not supported.</p>
+
+<p>---</p>
+
+<h4>volume_db</h4>
+
+<pre><code>
+float volume_db = 0.0
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_volume_db(value: float)</code></li>
+<li>*Getter:* <code class="inline">get_volume_db() -&gt; float</code></li>
+
+<p>Base volume in decibels applied to all instances. <code class="inline">0.0</code> is full volume, <code class="inline">-80.0</code> is effectively silent. This is a global volume control -- per-instance volume is applied on top of this.</p>
+
+<p>Range: -80.0 to 24.0 dB.</p>
+
+<p>---</p>
+
+<h4>amplify_db</h4>
+
+<pre><code>
+float amplify_db = 0.0
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_amplify_db(value: float)</code></li>
+<li>*Getter:* <code class="inline">get_amplify_db() -&gt; float</code></li>
+
+<p>Additional gain in decibels applied to the final mix output. Use this to boost quiet source audio without modifying the original file. Applied after all per-instance mixing.</p>
+
+<p>Range: -20.0 to 40.0 dB.</p>
+
+<p>---</p>
+
+<h4>bus</h4>
+
+<pre><code>
+StringName bus = &quot;Master&quot;
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_bus(value: StringName)</code></li>
+<li>*Getter:* <code class="inline">get_bus() -&gt; StringName</code></li>
+
+<p>The audio bus to route the mixed output to. Must match a bus name defined in your project&#x27;s Audio Bus Layout. Defaults to <code class="inline">&quot;Master&quot;</code>.</p>
+
+<p>---</p>
+
+<h4>loop</h4>
+
+<pre><code>
+bool loop = false
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_loop(value: bool)</code></li>
+<li>*Getter:* <code class="inline">get_loop() -&gt; bool</code></li>
+
+<p>If <code class="inline">true</code>, playback loops from the beginning when it reaches the end of the stream. Applies to all instances -- each instance loops independently based on its own playback position.</p>
+
+<p>---</p>
+
+<h4>autoplay</h4>
+
+<pre><code>
+bool autoplay = false
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_autoplay(value: bool)</code></li>
+<li>*Getter:* <code class="inline">get_autoplay() -&gt; bool</code></li>
+
+<p>If <code class="inline">true</code>, all active instances begin playing automatically when the node enters the scene tree. Equivalent to calling <code class="inline">play_all()</code> during <code class="inline">_ready()</code>.</p>
+
+<p>---</p>
+
+<h4>max_distance</h4>
+
+<pre><code>
+float max_distance = 50.0
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_max_distance(value: float)</code></li>
+<li>*Getter:* <code class="inline">get_max_distance() -&gt; float</code></li>
+
+<p>The maximum distance from the camera at which instances are audible. Beyond this distance, an instance&#x27;s contribution to the mix is zero. Measured in world units.</p>
+
+<p>Range: 1.0 to 1000.0 meters.</p>
+
+<p>---</p>
+
+<h4>reference_distance</h4>
+
+<pre><code>
+float reference_distance = 1.0
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_reference_distance(value: float)</code></li>
+<li>*Getter:* <code class="inline">get_reference_distance() -&gt; float</code></li>
+
+<p>The distance at which the sound is at full volume (no attenuation). Between <code class="inline">reference_distance</code> and <code class="inline">max_distance</code>, volume falls off using an inverse-distance model.</p>
+
+<p>Range: 0.1 to 100.0 meters.</p>
+
+<p>---</p>
+
+<h4>auto_pause</h4>
+
+<pre><code>
+bool auto_pause = true
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_auto_pause(value: bool)</code></li>
+<li>*Getter:* <code class="inline">get_auto_pause() -&gt; bool</code></li>
+
+<p>If <code class="inline">true</code>, the internal AudioStreamPlayer pauses when no instances are currently playing. This avoids filling the audio buffer with silence and saves processing time. The player resumes automatically when any instance starts playing.</p>
+
+<p>---</p>
+
+<h4>pitch_randomization</h4>
+
+<pre><code>
+float pitch_randomization = 0.0
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_pitch_randomization(value: float)</code></li>
+<li>*Getter:* <code class="inline">get_pitch_randomization() -&gt; float</code></li>
+
+<p>Random pitch variation applied when an instance starts playing. A value of <code class="inline">0.1</code> means the pitch can vary by up to 10% above or below the base pitch. Applied per-instance at play time -- the randomized pitch persists for the duration of playback.</p>
+
+<p>Range: 0.0 to 1.0.</p>
+
+<p>---</p>
+
+<h4>volume_randomization</h4>
+
+<pre><code>
+float volume_randomization = 0.0
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_volume_randomization(value: float)</code></li>
+<li>*Getter:* <code class="inline">get_volume_randomization() -&gt; float</code></li>
+
+<p>Random volume variation in decibels applied when an instance starts playing. A value of <code class="inline">3.0</code> means volume can vary by up to 3 dB above or below the base volume. Applied per-instance at play time.</p>
+
+<p>Range: 0.0 to 20.0 dB.</p>
+
+<p>---</p>
+
+<h4>distance_filter_enabled</h4>
+
+<pre><code>
+bool distance_filter_enabled = true
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_distance_filter_enabled(value: bool)</code></li>
+<li>*Getter:* <code class="inline">get_distance_filter_enabled() -&gt; bool</code></li>
+
+<p>If <code class="inline">true</code>, a single-pole low-pass filter is applied per instance based on distance from the camera. Distant sounds lose high-frequency content, simulating natural sound propagation through air.</p>
+
+<p>---</p>
+
+<h4>distance_filter_strength</h4>
+
+<pre><code>
+float distance_filter_strength = 0.5
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_distance_filter_strength(value: float)</code></li>
+<li>*Getter:* <code class="inline">get_distance_filter_strength() -&gt; float</code></li>
+
+<p>Controls the intensity of the distance-based low-pass filter. Higher values produce a stronger muffling effect at distance. <code class="inline">0.0</code> applies no filtering, <code class="inline">1.0</code> applies maximum filtering.</p>
+
+<p>Range: 0.0 to 1.0.</p>
+
+<h3>Methods</h3>
+
+<table>
+<tr><th>Return</th><th>Name</th></tr>
+<tr><td>void</td><td><a href="#play_instance">play_instance</a></td></tr>
+<tr><td>void</td><td><a href="#stop_instance">stop_instance</a></td></tr>
+<tr><td>void</td><td><a href="#play_all">play_all</a></td></tr>
+<tr><td>void</td><td><a href="#stop_all">stop_all</a></td></tr>
+<tr><td>void</td><td><a href="#set_instance_playing">set_instance_playing</a></td></tr>
+<tr><td>bool</td><td><a href="#get_instance_playing">get_instance_playing</a></td></tr>
+<tr><td>void</td><td><a href="#set_instance_volume">set_instance_volume</a></td></tr>
+<tr><td>float</td><td><a href="#get_instance_volume">get_instance_volume</a></td></tr>
+<tr><td>void</td><td><a href="#set_instance_pitch">set_instance_pitch</a></td></tr>
+<tr><td>float</td><td><a href="#get_instance_pitch">get_instance_pitch</a></td></tr>
+<tr><td>float</td><td><a href="#get_instance_playback_position">get_instance_playback_position</a></td></tr>
+</table>
+
+<h3>Method Descriptions</h3>
+
+<h4>play_instance</h4>
+
+<pre><code>
+void play_instance(index: int, from_seconds: float = 0.0)
+</code></pre>
+
+<p>Starts playback for a single instance at the given time offset in seconds. If the instance is already playing, playback restarts from <code class="inline">from_seconds</code>. Pitch and volume randomization (if configured) are re-applied each time this is called.</p>
+
+<p>---</p>
+
+<h4>stop_instance</h4>
+
+<pre><code>
+void stop_instance(index: int)
+</code></pre>
+
+<p>Stops playback for a single instance. The playback position is reset. The instance will not contribute to the audio mix until <code class="inline">play_instance()</code> or <code class="inline">set_instance_playing(index, true)</code> is called again.</p>
+
+<p>---</p>
+
+<h4>play_all</h4>
+
+<pre><code>
+void play_all()
+</code></pre>
+
+<p>Starts playback for all active instances simultaneously. Each instance begins from the start of the stream. Pitch and volume randomization are applied independently to each instance.</p>
+
+<p>---</p>
+
+<h4>stop_all</h4>
+
+<pre><code>
+void stop_all()
+</code></pre>
+
+<p>Stops playback for all instances. All playback positions are reset.</p>
+
+<p>---</p>
+
+<h4>set_instance_playing</h4>
+
+<pre><code>
+void set_instance_playing(index: int, playing: bool)
+</code></pre>
+
+<p>Sets the playing state of a single instance. When set to <code class="inline">true</code>, the instance resumes from its current playback position. When set to <code class="inline">false</code>, the instance is paused (position is preserved, unlike <code class="inline">stop_instance()</code> which resets it).</p>
+
+<p>---</p>
+
+<h4>get_instance_playing</h4>
+
+<pre><code>
+bool get_instance_playing(index: int)
+</code></pre>
+
+<p>Returns <code class="inline">true</code> if the given instance is currently playing audio. Returns <code class="inline">false</code> if stopped, paused, or the index is out of range.</p>
+
+<p>---</p>
+
+<h4>set_instance_volume</h4>
+
+<pre><code>
+void set_instance_volume(index: int, db: float)
+</code></pre>
+
+<p>Sets the volume offset in decibels for a single instance. This is added to the global <code class="inline">volume_db</code>. Use to make specific instances louder or quieter than the base level.</p>
+
+<p>---</p>
+
+<h4>get_instance_volume</h4>
+
+<pre><code>
+float get_instance_volume(index: int)
+</code></pre>
+
+<p>Returns the per-instance volume offset in decibels. Default is <code class="inline">0.0</code> (no offset from the global volume).</p>
+
+<p>---</p>
+
+<h4>set_instance_pitch</h4>
+
+<pre><code>
+void set_instance_pitch(index: int, scale: float)
+</code></pre>
+
+<p>Sets the pitch scale for a single instance. <code class="inline">1.0</code> is normal pitch, <code class="inline">2.0</code> is one octave up, <code class="inline">0.5</code> is one octave down. Affects playback speed -- higher pitch means faster playback.</p>
+
+<p>---</p>
+
+<h4>get_instance_pitch</h4>
+
+<pre><code>
+float get_instance_pitch(index: int)
+</code></pre>
+
+<p>Returns the pitch scale for the given instance. Default is <code class="inline">1.0</code>.</p>
+
+<p>---</p>
+
+<h4>get_instance_playback_position</h4>
+
+<pre><code>
+float get_instance_playback_position(index: int)
+</code></pre>
+
+<p>Returns the current playback position in seconds for the given instance. Returns <code class="inline">0.0</code> if the instance is not playing or the index is out of range.</p>
+</section>
+<section class="class-section"><h2 class="class-name" id="MultiNodeAnimator">MultiNodeAnimator</h2>
+
+<p class="inherits"><strong>Inherits:</strong> <a href="MultiNodeSub.md">MultiNodeSub</a></p>
+
+<p>Per-instance animation playback sharing a single Animation resource.</p>
+
+<h3>Description</h3>
+
+<p>Shares one Animation resource across all instances with independent playback state. Each instance has its own time position, speed scale, and playing/paused flag, enabling varied animation across thousands of instances without duplicating resources.</p>
+
+<p><strong>Transform tracks</strong> (position, rotation, scale) drive instance transforms additively. When an instance starts playing, its current transform is captured as the base. Animation values are then added on top of that base, so a position track with value <code class="inline">(0, 1, 0)</code> at time 0.5 lifts the instance 1 unit above where it started -- not to an absolute world position. This makes animations portable across all instance positions.</p>
+
+<p><strong>Value and bezier tracks</strong> target sibling sub-node properties. If the track path points to a sibling MultiNodeSub and that node has a <code class="inline">set_instance_X()</code> method matching the property name, the animator calls it per-instance automatically. For example, a track targeting <code class="inline">MultiNodeMesh:visible</code> would call <code class="inline">set_instance_visible(index, value)</code> on the sibling mesh node for each instance.</p>
+
+<p><strong>Method tracks</strong> prepend the instance index as the first argument. A method track calling <code class="inline">my_method(42.0)</code> at a given keyframe will actually call <code class="inline">my_method(instance_index, 42.0)</code> on the target node.</p>
+
+<p>Two sync modes control how instances relate to each other in time:</p>
+<li><strong>SYNC_NONE</strong>: Each instance animates independently from whenever it was played. Use for staggered starts, manual per-instance control, or event-driven playback.</li>
+<li><strong>SYNC_SYNC</strong>: All instances share a base clock. The <code class="inline">sync_offset</code> property controls the time offset between consecutive instances as a fraction of the animation length (0.0 = lockstep, 0.5 = each instance offset by half the animation from the previous).</li>
+
+<h3>Properties</h3>
+
+<table>
+<tr><th>Name</th><th>Type</th><th>Default</th></tr>
+<tr><td><a href="#animation">animation</a></td><td>Animation</td><td><code class="inline">null</code></td></tr>
+<tr><td><a href="#autoplay">autoplay</a></td><td>bool</td><td><code class="inline">true</code></td></tr>
+<tr><td><a href="#sync_mode">sync_mode</a></td><td>SyncMode</td><td><code class="inline">SYNC_NONE (0)</code></td></tr>
+<tr><td><a href="#sync_offset">sync_offset</a></td><td>float</td><td><code class="inline">0.0</code></td></tr>
+<tr><td><a href="#speed_scale">speed_scale</a></td><td>float</td><td><code class="inline">1.0</code></td></tr>
+</table>
+
+<h3>Property Descriptions</h3>
+
+<h4>animation</h4>
+
+<pre><code>
+Animation animation = null
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_animation(value: Animation)</code></li>
+<li>*Getter:* <code class="inline">get_animation() -&gt; Animation</code></li>
+
+<p>The Animation resource shared by all instances. All tracks are bound to the parent MultiNode or sibling sub-nodes when assigned. Changing the animation re-binds all tracks and stops playback.</p>
+
+<p>Supports position, rotation, scale, value, bezier, and method tracks. Audio and animation tracks within the Animation resource are not supported.</p>
+
+<p>---</p>
+
+<h4>autoplay</h4>
+
+<pre><code>
+bool autoplay = true
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_autoplay(value: bool)</code></li>
+<li>*Getter:* <code class="inline">get_autoplay() -&gt; bool</code></li>
+
+<p>If <code class="inline">true</code>, all active instances begin playing automatically when the node enters the scene tree. Equivalent to calling <code class="inline">play_all()</code> during setup.</p>
+
+<p>---</p>
+
+<h4>sync_mode</h4>
+
+<pre><code>
+SyncMode sync_mode = SYNC_NONE (0)
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_sync_mode(value: int)</code></li>
+<li>*Getter:* <code class="inline">get_sync_mode() -&gt; int</code></li>
+
+<p>Controls how instance playback times relate to each other. See <a href="#enumerations">SyncMode</a> for values.</p>
+
+<li><code class="inline">SYNC_NONE</code>: Instances are fully independent. Each starts from whatever time was specified in <code class="inline">play_instance()</code>.</li>
+<li><code class="inline">SYNC_SYNC</code>: Instances share a global clock. Each instance&#x27;s time is <code class="inline">base_time + index * sync_offset * animation_length</code>, producing wave-like staggered animation.</li>
+
+<p>---</p>
+
+<h4>sync_offset</h4>
+
+<pre><code>
+float sync_offset = 0.0
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_sync_offset(value: float)</code></li>
+<li>*Getter:* <code class="inline">get_sync_offset() -&gt; float</code></li>
+
+<p>The time offset between consecutive instances when <code class="inline">sync_mode</code> is <code class="inline">SYNC_SYNC</code>, expressed as a fraction of the animation length.</p>
+
+<li><code class="inline">0.0</code> = all instances animate in perfect lockstep.</li>
+<li><code class="inline">0.5</code> = each instance is offset by half the animation length from the previous, creating an alternating pattern.</li>
+<li><code class="inline">1.0</code> = wraps fully, equivalent to lockstep.</li>
+
+<p>Small fractional values (e.g., <code class="inline">0.01</code>) create smooth wave effects across large instance counts.</p>
+
+<p>---</p>
+
+<h4>speed_scale</h4>
+
+<pre><code>
+float speed_scale = 1.0
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_speed_scale(value: float)</code></li>
+<li>*Getter:* <code class="inline">get_speed_scale() -&gt; float</code></li>
+
+<p>Global playback speed multiplier applied to all instances. <code class="inline">1.0</code> is normal speed, <code class="inline">2.0</code> is double speed, <code class="inline">0.5</code> is half speed. Negative values play the animation in reverse.</p>
+
+<p>Per-instance speed (set via <code class="inline">set_instance_speed()</code>) is multiplied with this value.</p>
+
+<h3>Methods</h3>
+
+<table>
+<tr><th>Return</th><th>Name</th></tr>
+<tr><td>void</td><td><a href="#play_all">play_all</a></td></tr>
+<tr><td>void</td><td><a href="#stop_all">stop_all</a></td></tr>
+<tr><td>void</td><td><a href="#play_instance">play_instance</a></td></tr>
+<tr><td>void</td><td><a href="#stop_instance">stop_instance</a></td></tr>
+<tr><td>void</td><td><a href="#set_instance_speed">set_instance_speed</a></td></tr>
+<tr><td>float</td><td><a href="#get_instance_time">get_instance_time</a></td></tr>
+</table>
+
+<h3>Method Descriptions</h3>
+
+<h4>play_all</h4>
+
+<pre><code>
+void play_all()
+</code></pre>
+
+<p>Starts playback for all active instances from the beginning of the animation. Each instance&#x27;s base transform is captured at this point -- transform tracks are applied additively on top of these captured values.</p>
+
+<p>---</p>
+
+<h4>stop_all</h4>
+
+<pre><code>
+void stop_all()
+</code></pre>
+
+<p>Stops playback for all instances and resets their time positions to zero. Transform tracks stop being applied.</p>
+
+<p>---</p>
+
+<h4>play_instance</h4>
+
+<pre><code>
+void play_instance(index: int, from_time: float = 0.0)
+</code></pre>
+
+<p>Starts playback for a single instance from the specified time in seconds. The instance&#x27;s current transform is captured as its base. If the instance is already playing, playback restarts from <code class="inline">from_time</code> and the base transform is recaptured.</p>
+
+<p>---</p>
+
+<h4>stop_instance</h4>
+
+<pre><code>
+void stop_instance(index: int)
+</code></pre>
+
+<p>Stops playback for a single instance and resets its time position to zero.</p>
+
+<p>---</p>
+
+<h4>set_instance_speed</h4>
+
+<pre><code>
+void set_instance_speed(index: int, speed: float)
+</code></pre>
+
+<p>Sets the playback speed multiplier for a single instance. This is multiplied with the global <code class="inline">speed_scale</code>. A value of <code class="inline">1.0</code> uses the global speed, <code class="inline">2.0</code> plays twice as fast as the global speed, and <code class="inline">0.0</code> effectively pauses the instance while keeping it in the &quot;playing&quot; state.</p>
+
+<p>---</p>
+
+<h4>get_instance_time</h4>
+
+<pre><code>
+float get_instance_time(index: int)
+</code></pre>
+
+<p>Returns the current playback time in seconds for the given instance. Returns <code class="inline">0.0</code> if the instance is not playing or the index is out of range.</p>
+
+<h3>Enumerations</h3>
+
+<h4>SyncMode</h4>
+
+<table>
+<tr><th>Name</th><th>Value</th><th>Description</th></tr>
+<tr><td>SYNC_NONE</td><td><code class="inline">0</code></td><td>Each instance animates independently. Time is controlled per-instance via <code class="inline">play_instance()</code> and <code class="inline">set_instance_speed()</code>.</td></tr>
+<tr><td>SYNC_SYNC</td><td><code class="inline">1</code></td><td>All instances share a base clock with staggered offsets. The offset between consecutive instances is controlled by <code class="inline">sync_offset</code>.</td></tr>
+</table>
+</section>
+<section class="class-section"><h2 class="class-name" id="MultiNodeLabel">MultiNodeLabel</h2>
+
+<p class="inherits"><strong>Inherits:</strong> <a href="MultiNodeVisual3D.md">MultiNodeVisual3D</a></p>
+
+<p>Billboard text labels rendered above instances using a shared text atlas.</p>
+
+<h3>Description</h3>
+
+<p>Renders text labels using GPU-instanced billboard quads. All labels share a single text atlas texture generated via an internal SubViewport, drawn in one MultiMesh draw call. This makes it possible to display unique text over thousands of instances with minimal draw call overhead.</p>
+
+<p>Per-instance text is set via <code class="inline">set_instance_text()</code>. Setting an empty string hides the label for that instance. The atlas is rebuilt automatically when any text changes. For bulk text updates, use <code class="inline">begin_text_batch()</code> and <code class="inline">end_text_batch()</code> to suppress atlas rebuilds until all changes are applied.</p>
+
+<p>Labels use a Y-locked billboard shader -- they always face the camera horizontally but remain upright (no tilt). The label quad is positioned at each instance&#x27;s world position with the MultiNode3D offset applied. The <code class="inline">label_height</code> property controls the world-space height of the label quad; width scales automatically based on text length.</p>
+
+<p>Text rendering uses the assigned Font resource (or the default system font if none is set). Outline rendering provides readability against any background. The atlas is rendered at <code class="inline">font_size * render_scale</code> resolution for crisp text at typical viewing distances.</p>
+
+<p>Labels beyond <code class="inline">max_label_distance</code> from the camera are hidden to avoid rendering illegible text and to save GPU fill rate.</p>
+
+<p>Inherits per-instance color tinting from MultiNodeVisual3D. The <code class="inline">tint</code> property and per-instance colors multiply the <code class="inline">text_color</code>.</p>
+
+<h3>Properties</h3>
+
+<table>
+<tr><th>Name</th><th>Type</th><th>Default</th></tr>
+<tr><td><a href="#font">font</a></td><td>Font</td><td><code class="inline">null</code></td></tr>
+<tr><td><a href="#font_size">font_size</a></td><td>int</td><td><code class="inline">32</code></td></tr>
+<tr><td><a href="#text_color">text_color</a></td><td>Color</td><td><code class="inline">Color(1, 1, 1, 1)</code></td></tr>
+<tr><td><a href="#outline_color">outline_color</a></td><td>Color</td><td><code class="inline">Color(0, 0, 0, 1)</code></td></tr>
+<tr><td><a href="#outline_size">outline_size</a></td><td>int</td><td><code class="inline">4</code></td></tr>
+<tr><td><a href="#label_height">label_height</a></td><td>float</td><td><code class="inline">0.5</code></td></tr>
+<tr><td><a href="#cell_padding">cell_padding</a></td><td>int</td><td><code class="inline">8</code></td></tr>
+<tr><td><a href="#render_scale">render_scale</a></td><td>float</td><td><code class="inline">2.0</code></td></tr>
+<tr><td><a href="#max_label_distance">max_label_distance</a></td><td>float</td><td><code class="inline">100.0</code></td></tr>
+</table>
+
+<h3>Property Descriptions</h3>
+
+<h4>font</h4>
+
+<pre><code>
+Font font = null
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_font(value: Font)</code></li>
+<li>*Getter:* <code class="inline">get_font() -&gt; Font</code></li>
+
+<p>The font used for rendering label text. Accepts any Godot Font resource: SystemFont, FontFile (TTF/OTF), or BitmapFont. If <code class="inline">null</code>, the default theme font is used.</p>
+
+<p>Changing the font triggers an atlas rebuild.</p>
+
+<p>---</p>
+
+<h4>font_size</h4>
+
+<pre><code>
+int font_size = 32
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_font_size(value: int)</code></li>
+<li>*Getter:* <code class="inline">get_font_size() -&gt; int</code></li>
+
+<p>The font size in pixels used when rendering text to the atlas. Larger values produce sharper text but increase atlas texture size. The final rendering resolution is <code class="inline">font_size * render_scale</code>.</p>
+
+<p>---</p>
+
+<h4>text_color</h4>
+
+<pre><code>
+Color text_color = Color(1, 1, 1, 1)
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_text_color(value: Color)</code></li>
+<li>*Getter:* <code class="inline">get_text_color() -&gt; Color</code></li>
+
+<p>The base color of the label text. This is baked into the atlas texture. Per-instance color tinting (from MultiNodeVisual3D) is multiplied on top.</p>
+
+<p>Changing this triggers an atlas rebuild.</p>
+
+<p>---</p>
+
+<h4>outline_color</h4>
+
+<pre><code>
+Color outline_color = Color(0, 0, 0, 1)
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_outline_color(value: Color)</code></li>
+<li>*Getter:* <code class="inline">get_outline_color() -&gt; Color</code></li>
+
+<p>The color of the text outline. A dark outline improves readability against bright or varied backgrounds. Set alpha to <code class="inline">0.0</code> to disable the outline visually.</p>
+
+<p>Changing this triggers an atlas rebuild.</p>
+
+<p>---</p>
+
+<h4>outline_size</h4>
+
+<pre><code>
+int outline_size = 4
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_outline_size(value: int)</code></li>
+<li>*Getter:* <code class="inline">get_outline_size() -&gt; int</code></li>
+
+<p>The thickness of the text outline in pixels. Larger values produce a thicker border around each character. Set to <code class="inline">0</code> to disable outlines entirely.</p>
+
+<p>Changing this triggers an atlas rebuild.</p>
+
+<p>---</p>
+
+<h4>label_height</h4>
+
+<pre><code>
+float label_height = 0.5
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_label_height(value: float)</code></li>
+<li>*Getter:* <code class="inline">get_label_height() -&gt; float</code></li>
+
+<p>The world-space height of each label quad in meters. The width scales automatically based on the text&#x27;s aspect ratio (longer text produces wider quads). Adjust this to control how large labels appear in the scene.</p>
+
+<p>---</p>
+
+<h4>cell_padding</h4>
+
+<pre><code>
+int cell_padding = 8
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_cell_padding(value: int)</code></li>
+<li>*Getter:* <code class="inline">get_cell_padding() -&gt; int</code></li>
+
+<p>Padding in pixels around each text cell in the atlas. Prevents texture bleeding between adjacent cells when using mipmaps or linear filtering. Increase if you see artifacts at the edges of labels.</p>
+
+<p>---</p>
+
+<h4>render_scale</h4>
+
+<pre><code>
+float render_scale = 2.0
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_render_scale(value: float)</code></li>
+<li>*Getter:* <code class="inline">get_render_scale() -&gt; float</code></li>
+
+<p>Multiplier applied to <code class="inline">font_size</code> when rendering text to the atlas. A value of <code class="inline">2.0</code> renders at double resolution, producing sharper text when viewed up close. Higher values increase atlas texture memory. Reduce to <code class="inline">1.0</code> for distant labels or large instance counts to save memory.</p>
+
+<p>---</p>
+
+<h4>max_label_distance</h4>
+
+<pre><code>
+float max_label_distance = 100.0
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_max_label_distance(value: float)</code></li>
+<li>*Getter:* <code class="inline">get_max_label_distance() -&gt; float</code></li>
+
+<p>The maximum distance from the camera at which labels are visible. Labels beyond this distance are hidden by setting their transform to zero scale. This avoids rendering tiny, illegible text and reduces GPU fill rate.</p>
+
+<h3>Methods</h3>
+
+<table>
+<tr><th>Return</th><th>Name</th></tr>
+<tr><td>void</td><td><a href="#set_instance_text">set_instance_text</a></td></tr>
+<tr><td>String</td><td><a href="#get_instance_text">get_instance_text</a></td></tr>
+<tr><td>void</td><td><a href="#set_all_texts">set_all_texts</a></td></tr>
+<tr><td>void</td><td><a href="#set_texts">set_texts</a></td></tr>
+<tr><td>void</td><td><a href="#begin_text_batch">begin_text_batch</a></td></tr>
+<tr><td>void</td><td><a href="#end_text_batch">end_text_batch</a></td></tr>
+</table>
+
+<h3>Method Descriptions</h3>
+
+<h4>set_instance_text</h4>
+
+<pre><code>
+void set_instance_text(index: int, text: String)
+</code></pre>
+
+<p>Sets the text label for a single instance. The atlas is rebuilt to include the new text (unless inside a <code class="inline">begin_text_batch()</code> / <code class="inline">end_text_batch()</code> block). Setting an empty string <code class="inline">&quot;&quot;</code> hides the label for that instance.</p>
+
+<p>Duplicate strings across instances share the same atlas cell, so assigning the same text to many instances is efficient.</p>
+
+<p>---</p>
+
+<h4>get_instance_text</h4>
+
+<pre><code>
+String get_instance_text(index: int)
+</code></pre>
+
+<p>Returns the current text label for the given instance. Returns an empty string if no text is set or the index is out of range.</p>
+
+<p>---</p>
+
+<h4>set_all_texts</h4>
+
+<pre><code>
+void set_all_texts(text: String)
+</code></pre>
+
+<p>Sets every instance&#x27;s label to the same text string. Efficient for uniform labels (e.g., all instances showing &quot;Enemy&quot; or a shared status). Triggers a single atlas rebuild.</p>
+
+<p>---</p>
+
+<h4>set_texts</h4>
+
+<pre><code>
+void set_texts(texts: PackedStringArray)
+</code></pre>
+
+<p>Sets text labels for all instances from a PackedStringArray. The array length should match the instance count. If shorter, remaining instances keep their existing text. If longer, extra entries are ignored. Triggers a single atlas rebuild.</p>
+
+<p>---</p>
+
+<h4>begin_text_batch</h4>
+
+<pre><code>
+void begin_text_batch()
+</code></pre>
+
+<p>Begins a text batch operation. While a batch is active, calls to <code class="inline">set_instance_text()</code> do not trigger atlas rebuilds. This is critical for performance when updating many instance texts at once -- without batching, each <code class="inline">set_instance_text()</code> call would rebuild the atlas individually.</p>
+
+<p>Must be paired with <code class="inline">end_text_batch()</code>.</p>
+
+<p>---</p>
+
+<h4>end_text_batch</h4>
+
+<pre><code>
+void end_text_batch()
+</code></pre>
+
+<p>Ends a text batch operation and triggers a single atlas rebuild incorporating all text changes made since <code class="inline">begin_text_batch()</code> was called.</p>
+</section>
+<section class="class-section"><h2 class="class-name" id="MultiNodeParticle">MultiNodeParticle</h2>
+
+<p class="inherits"><strong>Inherits:</strong> <a href="MultiNodeVisual3D.md">MultiNodeVisual3D</a></p>
+
+<p>GPU particle emitters for each instance, sharing a common material and mesh.</p>
+
+<h3>Description</h3>
+
+<p>Creates a GPUParticles3D child node per active instance in the parent MultiNode. All emitters share the same process material and draw mesh, ensuring visual consistency while allowing per-instance control over emission.</p>
+
+<p>Each emitter is positioned at its instance&#x27;s world transform (with the MultiNode3D offset applied) and updated automatically when instances move. Emitters are created when instances become active and removed when they become inactive.</p>
+
+<p>Keep instance counts reasonable when using this node -- each GPUParticles3D emitter has GPU overhead for simulation and rendering. For large instance counts (thousands), consider whether particles are necessary for all instances or if <code class="inline">instance_every</code> / <code class="inline">instance_range</code> filtering can limit the emitter count.</p>
+
+<p>The <code class="inline">process_material</code> property accepts any ParticleProcessMaterial (or custom shader material) that defines particle behavior: velocity, gravity, color gradients, emission shape, etc. The <code class="inline">draw_mesh</code> defines the geometry each particle renders as -- typically a QuadMesh for billboard particles.</p>
+
+<p>Inherits shadow casting, render layers, and per-instance color tinting from MultiNodeVisual3D. Per-instance colors are applied to the emitters, allowing tinted particles per instance.</p>
+
+<h3>Properties</h3>
+
+<table>
+<tr><th>Name</th><th>Type</th><th>Default</th></tr>
+<tr><td><a href="#process_material">process_material</a></td><td>Material</td><td><code class="inline">null</code></td></tr>
+<tr><td><a href="#draw_mesh">draw_mesh</a></td><td>Mesh</td><td><code class="inline">null</code></td></tr>
+<tr><td><a href="#amount">amount</a></td><td>int</td><td><code class="inline">16</code></td></tr>
+<tr><td><a href="#lifetime">lifetime</a></td><td>float</td><td><code class="inline">1.0</code></td></tr>
+<tr><td><a href="#emitting">emitting</a></td><td>bool</td><td><code class="inline">true</code></td></tr>
+<tr><td><a href="#speed_scale">speed_scale</a></td><td>float</td><td><code class="inline">1.0</code></td></tr>
+<tr><td><a href="#explosiveness">explosiveness</a></td><td>float</td><td><code class="inline">0.0</code></td></tr>
+<tr><td><a href="#randomness">randomness</a></td><td>float</td><td><code class="inline">0.0</code></td></tr>
+<tr><td><a href="#one_shot">one_shot</a></td><td>bool</td><td><code class="inline">false</code></td></tr>
+<tr><td><a href="#pre_process_time">pre_process_time</a></td><td>float</td><td><code class="inline">0.0</code></td></tr>
+<tr><td><a href="#fixed_fps">fixed_fps</a></td><td>int</td><td><code class="inline">0</code></td></tr>
+</table>
+
+<h3>Property Descriptions</h3>
+
+<h4>process_material</h4>
+
+<pre><code>
+Material process_material = null
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_process_material(value: Material)</code></li>
+<li>*Getter:* <code class="inline">get_process_material() -&gt; Material</code></li>
+
+<p>The material that defines particle behavior. Typically a ParticleProcessMaterial controlling velocity, acceleration, color over lifetime, emission shape, gravity, and other simulation parameters. All emitters share this material.</p>
+
+<p>Changing the material updates all existing emitters immediately.</p>
+
+<p>---</p>
+
+<h4>draw_mesh</h4>
+
+<pre><code>
+Mesh draw_mesh = null
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_draw_mesh(value: Mesh)</code></li>
+<li>*Getter:* <code class="inline">get_draw_mesh() -&gt; Mesh</code></li>
+
+<p>The mesh used to render each particle. Common choices are QuadMesh (for billboard sprites), BoxMesh, or SphereMesh. All emitters share this mesh resource.</p>
+
+<p>If <code class="inline">null</code>, particles use the default quad mesh provided by Godot&#x27;s GPUParticles3D.</p>
+
+<p>---</p>
+
+<h4>amount</h4>
+
+<pre><code>
+int amount = 16
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_amount(value: int)</code></li>
+<li>*Getter:* <code class="inline">get_amount() -&gt; int</code></li>
+
+<p>The number of particles emitted by each instance&#x27;s emitter. Total particle count across all instances is <code class="inline">amount * active_instance_count</code>. Higher values produce denser effects but increase GPU load proportionally.</p>
+
+<p>---</p>
+
+<h4>lifetime</h4>
+
+<pre><code>
+float lifetime = 1.0
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_lifetime(value: float)</code></li>
+<li>*Getter:* <code class="inline">get_lifetime() -&gt; float</code></li>
+
+<p>The time in seconds each particle lives before being recycled. Longer lifetimes mean more particles alive simultaneously (for the same emission rate), producing trails or lingering effects. Shorter lifetimes produce snappier, more contained effects.</p>
+
+<p>---</p>
+
+<h4>emitting</h4>
+
+<pre><code>
+bool emitting = true
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_emitting(value: bool)</code></li>
+<li>*Getter:* <code class="inline">get_emitting() -&gt; bool</code></li>
+
+<p>Global emission toggle for all instances. When <code class="inline">true</code>, all active instances emit particles. When <code class="inline">false</code>, no instances emit (existing particles continue until their lifetime expires). Per-instance emission can be controlled independently via <code class="inline">set_instance_emitting()</code>.</p>
+
+<p>---</p>
+
+<h4>speed_scale</h4>
+
+<pre><code>
+float speed_scale = 1.0
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_speed_scale(value: float)</code></li>
+<li>*Getter:* <code class="inline">get_speed_scale() -&gt; float</code></li>
+
+<p>Global speed multiplier for particle simulation. <code class="inline">1.0</code> is normal speed, <code class="inline">2.0</code> makes particles simulate at double speed, <code class="inline">0.5</code> creates a slow-motion effect. Applied to all emitters.</p>
+
+<p>---</p>
+
+<h4>explosiveness</h4>
+
+<pre><code>
+float explosiveness = 0.0
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_explosiveness(value: float)</code></li>
+<li>*Getter:* <code class="inline">get_explosiveness() -&gt; float</code></li>
+
+<p>Controls how particles are emitted over time. <code class="inline">0.0</code> emits particles at a steady rate throughout the lifetime. <code class="inline">1.0</code> emits all particles at once in a single burst. Values between create a mix. Useful for explosion effects or burst-style emissions.</p>
+
+<p>Range: 0.0 to 1.0.</p>
+
+<p>---</p>
+
+<h4>randomness</h4>
+
+<pre><code>
+float randomness = 0.0
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_randomness(value: float)</code></li>
+<li>*Getter:* <code class="inline">get_randomness() -&gt; float</code></li>
+
+<p>Adds random variation to the emission timing. <code class="inline">0.0</code> emits at regular intervals, <code class="inline">1.0</code> makes emission timing fully random. Breaks up the uniform look of steady emission.</p>
+
+<p>Range: 0.0 to 1.0.</p>
+
+<p>---</p>
+
+<h4>one_shot</h4>
+
+<pre><code>
+bool one_shot = false
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_one_shot(value: bool)</code></li>
+<li>*Getter:* <code class="inline">get_one_shot() -&gt; bool</code></li>
+
+<p>If <code class="inline">true</code>, each emitter plays through one full cycle and then stops. No new particles are created after the initial burst. Use <code class="inline">restart_instance()</code> or <code class="inline">restart_all()</code> to trigger the effect again.</p>
+
+<p>---</p>
+
+<h4>pre_process_time</h4>
+
+<pre><code>
+float pre_process_time = 0.0
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_pre_process_time(value: float)</code></li>
+<li>*Getter:* <code class="inline">get_pre_process_time() -&gt; float</code></li>
+
+<p>Time in seconds to simulate before the first frame. Causes particles to appear already in-flight when the emitter starts, avoiding the &quot;empty startup&quot; look. Useful for ambient effects that should look established from the start (e.g., fire, smoke, rain).</p>
+
+<p>---</p>
+
+<h4>fixed_fps</h4>
+
+<pre><code>
+int fixed_fps = 0
+</code></pre>
+
+<li>*Setter:* <code class="inline">set_fixed_fps(value: int)</code></li>
+<li>*Getter:* <code class="inline">get_fixed_fps() -&gt; int</code></li>
+
+<p>If greater than <code class="inline">0</code>, particle simulation runs at this fixed framerate instead of every rendered frame. Reduces GPU load by simulating less frequently. <code class="inline">0</code> means simulate every frame (the default). Typical values: 30 or 60.</p>
+
+<h3>Methods</h3>
+
+<table>
+<tr><th>Return</th><th>Name</th></tr>
+<tr><td>void</td><td><a href="#set_instance_emitting">set_instance_emitting</a></td></tr>
+<tr><td>bool</td><td><a href="#get_instance_emitting">get_instance_emitting</a></td></tr>
+<tr><td>void</td><td><a href="#restart_instance">restart_instance</a></td></tr>
+<tr><td>void</td><td><a href="#restart_all">restart_all</a></td></tr>
+</table>
+
+<h3>Method Descriptions</h3>
+
+<h4>set_instance_emitting</h4>
+
+<pre><code>
+void set_instance_emitting(index: int, emitting: bool)
+</code></pre>
+
+<p>Sets the emission state for a single instance&#x27;s particle emitter. When <code class="inline">false</code>, the emitter stops creating new particles (existing particles continue until they expire). When <code class="inline">true</code>, emission resumes.</p>
+
+<p>This is independent of the global <code class="inline">emitting</code> property -- both must be <code class="inline">true</code> for an instance to emit.</p>
+
+<p>---</p>
+
+<h4>get_instance_emitting</h4>
+
+<pre><code>
+bool get_instance_emitting(index: int)
+</code></pre>
+
+<p>Returns the per-instance emission state. Returns <code class="inline">true</code> if the instance is set to emit, <code class="inline">false</code> otherwise. Note that even if this returns <code class="inline">true</code>, the instance will not emit if the global <code class="inline">emitting</code> property is <code class="inline">false</code>.</p>
+
+<p>---</p>
+
+<h4>restart_instance</h4>
+
+<pre><code>
+void restart_instance(index: int)
+</code></pre>
+
+<p>Restarts the particle emitter for a single instance. Clears all existing particles and begins a fresh emission cycle. Useful for <code class="inline">one_shot</code> effects that need to be retriggered.</p>
+
+<p>---</p>
+
+<h4>restart_all</h4>
+
+<pre><code>
+void restart_all()
+</code></pre>
+
+<p>Restarts all particle emitters across all active instances. Each emitter clears its particles and begins a fresh emission cycle.</p>
+</section>
+<section class="class-section"><h2 class="class-name" id="MultiNodeSprite">MultiNodeSprite</h2>
+
+<p class="inherits"><strong>Inherits:</strong> MultiNodeVisual3D</p>
+
+<p>Billboard sprites with sprite sheet animation for all instances in one draw call.</p>
+
+<h3>Description</h3>
+
+<p>MultiNodeSprite renders billboard (or flat) sprites for each instance using a single MultiMesh draw call. Supports sprite sheet grids (hframes/vframes) with per-instance frame selection for walk cycles and animation states. Integrates with MultiNodeAnimator for automatic frame animation. Per-instance color modulation is supported.</p>
+
+<h3>Properties</h3>
+
+<table>
+<tr><th>Name</th><th>Type</th><th>Default</th></tr>
+<tr><td><a href="#texture">texture</a></td><td>Texture2D</td><td><code class="inline">null</code></td></tr>
+<tr><td><a href="#pixel_size">pixel_size</a></td><td>float</td><td><code class="inline">0.01</code></td></tr>
+<tr><td><a href="#hframes">hframes</a></td><td>int</td><td><code class="inline">1</code></td></tr>
+<tr><td><a href="#vframes">vframes</a></td><td>int</td><td><code class="inline">1</code></td></tr>
+<tr><td><a href="#billboard">billboard</a></td><td>bool</td><td><code class="inline">true</code></td></tr>
+<tr><td><a href="#pixel_art">pixel_art</a></td><td>bool</td><td><code class="inline">true</code></td></tr>
+</table>
+
+<h3>Property Descriptions</h3>
+
+<h4>texture</h4>
+
+<li><strong>Type:</strong> Texture2D</li>
+<li><strong>Default:</strong> <code class="inline">null</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_texture(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_texture()</code></li>
+
+<p>The sprite sheet texture. Can be a single sprite or a grid of frames defined by hframes and vframes. All instances share this texture.</p>
+
+<p>---</p>
+
+<h4>pixel_size</h4>
+
+<li><strong>Type:</strong> float</li>
+<li><strong>Default:</strong> <code class="inline">0.01</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_pixel_size(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_pixel_size()</code></li>
+
+<p>World-space size of each texture pixel in meters. Controls how large the sprite appears in the 3D scene. The quad is sized to match one frame&#x27;s pixel dimensions multiplied by this value.</p>
+
+<p>---</p>
+
+<h4>hframes</h4>
+
+<li><strong>Type:</strong> int</li>
+<li><strong>Default:</strong> <code class="inline">1</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_hframes(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_hframes()</code></li>
+
+<p>Number of horizontal frames (columns) in the sprite sheet grid. Set to 1 for a single-frame sprite.</p>
+
+<p>---</p>
+
+<h4>vframes</h4>
+
+<li><strong>Type:</strong> int</li>
+<li><strong>Default:</strong> <code class="inline">1</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_vframes(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_vframes()</code></li>
+
+<p>Number of vertical frames (rows) in the sprite sheet grid. Total frames available = hframes * vframes.</p>
+
+<p>---</p>
+
+<h4>billboard</h4>
+
+<li><strong>Type:</strong> bool</li>
+<li><strong>Default:</strong> <code class="inline">true</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_billboard(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_billboard()</code></li>
+
+<p>When enabled, sprites always face the camera (Y-locked billboard). When disabled, sprites are flat quads oriented by their instance transform.</p>
+
+<p>---</p>
+
+<h4>pixel_art</h4>
+
+<li><strong>Type:</strong> bool</li>
+<li><strong>Default:</strong> <code class="inline">true</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_pixel_art(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_pixel_art()</code></li>
+
+<p>When enabled, uses nearest-neighbor filtering for crisp pixel art. When disabled, uses linear mipmapped filtering for smooth scaling. Rebuilds the shader when changed.</p>
+
+<h3>Methods</h3>
+
+<table>
+<tr><th>Return</th><th>Name</th></tr>
+<tr><td>void</td><td><a href="#set_instance_frame">set_instance_frame</a>(index: int, frame: int)</td></tr>
+<tr><td>int</td><td><a href="#get_instance_frame">get_instance_frame</a>(index: int)</td></tr>
+</table>
+
+<h3>Method Descriptions</h3>
+
+<h4>set_instance_frame</h4>
+
+<pre><code>
+void set_instance_frame(index: int, frame: int)
+</code></pre>
+
+<p>Set the sprite sheet frame for a specific instance. Frame 0 is the top-left cell. Frames count left-to-right, top-to-bottom through the hframes * vframes grid.</p>
+
+<p>---</p>
+
+<h4>get_instance_frame</h4>
+
+<pre><code>
+int get_instance_frame(index: int)
+</code></pre>
+
+<p>Get the current sprite sheet frame for a specific instance.</p>
+</section>
+<section class="class-section"><h2 class="class-name" id="MultiNodeDecal">MultiNodeDecal</h2>
+
+<p class="inherits"><strong>Inherits:</strong> MultiNodeVisual3D</p>
+
+<p>Projected decals for each instance, using RenderingServer decals.</p>
+
+<h3>Description</h3>
+
+<p>MultiNodeDecal creates a RenderingServer decal for each active instance in the parent MultiNode. Decals project a texture onto nearby surfaces. Use cases include shadow blobs, tire marks, damage indicators, selection rings, and ground markers. Per-instance color modulation is supported via the tint system.</p>
+
+<h3>Properties</h3>
+
+<table>
+<tr><th>Name</th><th>Type</th><th>Default</th></tr>
+<tr><td><a href="#texture_albedo">texture_albedo</a></td><td>Texture2D</td><td><code class="inline">null</code></td></tr>
+<tr><td><a href="#decal_size">decal_size</a></td><td>Vector3</td><td><code class="inline">Vector3(2, 2, 2)</code></td></tr>
+<tr><td><a href="#albedo_mix">albedo_mix</a></td><td>float</td><td><code class="inline">1.0</code></td></tr>
+<tr><td><a href="#normal_fade">normal_fade</a></td><td>float</td><td><code class="inline">0.3</code></td></tr>
+<tr><td><a href="#upper_fade">upper_fade</a></td><td>float</td><td><code class="inline">0.3</code></td></tr>
+<tr><td><a href="#lower_fade">lower_fade</a></td><td>float</td><td><code class="inline">0.3</code></td></tr>
+</table>
+
+<h3>Property Descriptions</h3>
+
+<h4>texture_albedo</h4>
+
+<li><strong>Type:</strong> Texture2D</li>
+<li><strong>Default:</strong> <code class="inline">null</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_texture_albedo(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_texture_albedo()</code></li>
+
+<p>The texture projected by the decal onto surfaces. All instances share this texture.</p>
+
+<p>---</p>
+
+<h4>decal_size</h4>
+
+<li><strong>Type:</strong> Vector3</li>
+<li><strong>Default:</strong> <code class="inline">Vector3(2, 2, 2)</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_decal_size(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_decal_size()</code></li>
+
+<p>The size of the decal projection volume in meters (width, height, depth). The decal projects along the Y axis within this box.</p>
+
+<p>---</p>
+
+<h4>albedo_mix</h4>
+
+<li><strong>Type:</strong> float</li>
+<li><strong>Default:</strong> <code class="inline">1.0</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_albedo_mix(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_albedo_mix()</code></li>
+
+<p>How much the decal&#x27;s albedo texture blends with the underlying surface. 0.0 = no effect, 1.0 = full decal color.</p>
+
+<p>---</p>
+
+<h4>normal_fade</h4>
+
+<li><strong>Type:</strong> float</li>
+<li><strong>Default:</strong> <code class="inline">0.3</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_normal_fade(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_normal_fade()</code></li>
+
+<p>Controls how the decal fades based on the angle between the decal projection and the surface normal. Higher values make the decal fade more on angled surfaces.</p>
+
+<p>---</p>
+
+<h4>upper_fade</h4>
+
+<li><strong>Type:</strong> float</li>
+<li><strong>Default:</strong> <code class="inline">0.3</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_upper_fade(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_upper_fade()</code></li>
+
+<p>Controls the fade-out at the upper edge of the decal projection volume. Higher values produce a softer fade.</p>
+
+<p>---</p>
+
+<h4>lower_fade</h4>
+
+<li><strong>Type:</strong> float</li>
+<li><strong>Default:</strong> <code class="inline">0.3</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_lower_fade(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_lower_fade()</code></li>
+
+<p>Controls the fade-out at the lower edge of the decal projection volume. Higher values produce a softer fade.</p>
+</section>
+<section class="class-section"><h2 class="class-name" id="MultiNodeLight">MultiNodeLight</h2>
+
+<p class="inherits"><strong>Inherits:</strong> MultiNodeVisual3D</p>
+
+<p>Dynamic omni or spot lights for each instance.</p>
+
+<h3>Description</h3>
+
+<p>MultiNodeLight creates a RenderingServer light for each active instance in the parent MultiNode. Supports omni (point) and spot light types. Use cases include headlights, warning beacons, task lights, and streetlamps. Light count should be kept reasonable -- use instance_every to reduce the number of active lights for performance.</p>
+
+<h3>Properties</h3>
+
+<table>
+<tr><th>Name</th><th>Type</th><th>Default</th></tr>
+<tr><td><a href="#light_type">light_type</a></td><td>LightType</td><td><code class="inline">LIGHT_OMNI (0)</code></td></tr>
+<tr><td><a href="#light_color">light_color</a></td><td>Color</td><td><code class="inline">Color(1, 1, 1, 1)</code></td></tr>
+<tr><td><a href="#light_energy">light_energy</a></td><td>float</td><td><code class="inline">1.0</code></td></tr>
+<tr><td><a href="#light_range">light_range</a></td><td>float</td><td><code class="inline">10.0</code></td></tr>
+<tr><td><a href="#spot_angle">spot_angle</a></td><td>float</td><td><code class="inline">45.0</code></td></tr>
+<tr><td><a href="#shadow_enabled">shadow_enabled</a></td><td>bool</td><td><code class="inline">false</code></td></tr>
+</table>
+
+<h3>Property Descriptions</h3>
+
+<h4>light_type</h4>
+
+<li><strong>Type:</strong> LightType</li>
+<li><strong>Default:</strong> <code class="inline">LIGHT_OMNI (0)</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_light_type(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_light_type()</code></li>
+
+<p>The type of light created for each instance. Omni = point light radiating in all directions. Spot = directional cone light aimed along the instance&#x27;s forward axis.</p>
+
+<p>---</p>
+
+<h4>light_color</h4>
+
+<li><strong>Type:</strong> Color</li>
+<li><strong>Default:</strong> <code class="inline">Color(1, 1, 1, 1)</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_light_color(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_light_color()</code></li>
+
+<p>The base color of all lights. Per-instance color overrides are applied via <code class="inline">set_instance_color()</code> from the MultiNodeVisual3D base class.</p>
+
+<p>---</p>
+
+<h4>light_energy</h4>
+
+<li><strong>Type:</strong> float</li>
+<li><strong>Default:</strong> <code class="inline">1.0</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_light_energy(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_light_energy()</code></li>
+
+<p>The brightness multiplier for all lights. Higher values produce brighter illumination. Per-instance energy can be set via <code class="inline">set_instance_energy()</code>.</p>
+
+<p>---</p>
+
+<h4>light_range</h4>
+
+<li><strong>Type:</strong> float</li>
+<li><strong>Default:</strong> <code class="inline">10.0</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_light_range(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_light_range()</code></li>
+
+<p>The maximum distance in meters that each light illuminates. Surfaces beyond this range receive no light.</p>
+
+<p>---</p>
+
+<h4>spot_angle</h4>
+
+<li><strong>Type:</strong> float</li>
+<li><strong>Default:</strong> <code class="inline">45.0</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_spot_angle(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_spot_angle()</code></li>
+
+<p>The half-angle of the spot light cone in degrees. Only used when light_type is LIGHT_SPOT. Larger angles produce a wider cone.</p>
+
+<p>---</p>
+
+<h4>shadow_enabled</h4>
+
+<li><strong>Type:</strong> bool</li>
+<li><strong>Default:</strong> <code class="inline">false</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_shadow_enabled(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_shadow_enabled()</code></li>
+
+<p>When enabled, each light casts shadows. This is expensive -- each shadow-casting light requires a separate shadow map render pass. Use sparingly with large instance counts.</p>
+
+<h3>Methods</h3>
+
+<table>
+<tr><th>Return</th><th>Name</th></tr>
+<tr><td>void</td><td><a href="#set_instance_energy">set_instance_energy</a>(index: int, energy: float)</td></tr>
+</table>
+
+<h3>Method Descriptions</h3>
+
+<h4>set_instance_energy</h4>
+
+<pre><code>
+void set_instance_energy(index: int, energy: float)
+</code></pre>
+
+<p>Override the brightness for a single instance&#x27;s light. Use for flickering effects, dimming, or per-instance intensity variation.</p>
+
+<h3>Enumerations</h3>
+
+<h4>enum LightType</h4>
+
+<table>
+<tr><th>Constant</th><th>Value</th><th>Description</th></tr>
+<tr><td>LIGHT_OMNI</td><td><code class="inline">0</code></td><td>Point light radiating in all directions.</td></tr>
+<tr><td>LIGHT_SPOT</td><td><code class="inline">1</code></td><td>Directional cone light.</td></tr>
+</table>
+</section>
+<section class="class-section"><h2 class="class-name" id="MultiNodeInstancer">MultiNodeInstancer</h2>
+
+<p class="inherits"><strong>Inherits:</strong> MultiNodeSub</p>
+
+<p>Composable instance generator. Creates and manages instance transforms for its parent MultiNode.</p>
+
+<h3>Description</h3>
+
+<p>MultiNodeInstancer generates instance transforms using one of three modes (Array, Mesh Fill, or Manual) and writes them to the parent MultiNode&#x27;s instance list. Add as a child of MultiNode -- multiple generators can coexist, each owning a contiguous slice of the parent&#x27;s instances. Tree order determines stacking order.</p>
+
+<p>Features:</p>
+
+<li><strong>Array mode</strong>: Grid/chain patterns with configurable spacing, rotation, and scale stepping.</li>
+<li><strong>Mesh Fill mode</strong>: Scatter instances across a mesh surface or fill its volume.</li>
+<li><strong>Manual mode</strong>: Hand-place individual instances with inspector controls and viewport clicking.</li>
+<li><strong>Animate</strong>: Regenerate every frame for runtime mesh-fill animation or dynamic arrays.</li>
+<li><strong>Exclusion</strong>: Mark individual instances as &quot;broken away&quot; so the generator stops overwriting their transforms -- ideal for swarm breakaway mechanics.</li>
+<li><strong>Scatter</strong>: Apply random jitter, rotation, and scale variation on top of any generation mode.</li>
+
+<h3>Properties</h3>
+
+<table>
+<tr><th>Name</th><th>Type</th><th>Default</th></tr>
+<tr><td><a href="#gen_mode">gen_mode</a></td><td>GeneratorMode</td><td><code class="inline">GEN_ARRAY (0)</code></td></tr>
+<tr><td><a href="#gen_count">gen_count</a></td><td>int</td><td><code class="inline">10</code></td></tr>
+<tr><td><a href="#gen_seed">gen_seed</a></td><td>int</td><td><code class="inline">0</code></td></tr>
+<tr><td><a href="#gen_animate">gen_animate</a></td><td>bool</td><td><code class="inline">false</code></td></tr>
+<tr><td><a href="#gen_array_origin">gen_array_origin</a></td><td>Vector3</td><td><code class="inline">Vector3(0, 0, 0)</code></td></tr>
+<tr><td><a href="#gen_array_spacing">gen_array_spacing</a></td><td>Vector3</td><td><code class="inline">Vector3(2, 2, 2)</code></td></tr>
+<tr><td><a href="#gen_array_rows">gen_array_rows</a></td><td>int</td><td><code class="inline">0</code></td></tr>
+<tr><td><a href="#gen_array_cols">gen_array_cols</a></td><td>int</td><td><code class="inline">0</code></td></tr>
+<tr><td><a href="#gen_array_flip_layers">gen_array_flip_layers</a></td><td>bool</td><td><code class="inline">false</code></td></tr>
+<tr><td><a href="#gen_array_follow_rotation">gen_array_follow_rotation</a></td><td>bool</td><td><code class="inline">false</code></td></tr>
+<tr><td><a href="#gen_array_rotation">gen_array_rotation</a></td><td>Vector3</td><td><code class="inline">Vector3(0, 0, 0)</code></td></tr>
+<tr><td><a href="#gen_array_scale_step">gen_array_scale_step</a></td><td>float</td><td><code class="inline">1.0</code></td></tr>
+<tr><td><a href="#gen_fill_mesh">gen_fill_mesh</a></td><td>Mesh</td><td><code class="inline">null</code></td></tr>
+<tr><td><a href="#gen_fill_mode">gen_fill_mode</a></td><td>FillMode</td><td><code class="inline">FILL_SURFACE (0)</code></td></tr>
+<tr><td><a href="#gen_fill_align">gen_fill_align</a></td><td>bool</td><td><code class="inline">true</code></td></tr>
+<tr><td><a href="#gen_fill_min_distance">gen_fill_min_distance</a></td><td>float</td><td><code class="inline">0.0</code></td></tr>
+<tr><td><a href="#gen_scatter_enabled">gen_scatter_enabled</a></td><td>bool</td><td><code class="inline">false</code></td></tr>
+<tr><td><a href="#gen_scatter_jitter">gen_scatter_jitter</a></td><td>Vector3</td><td><code class="inline">Vector3(0, 0, 0)</code></td></tr>
+<tr><td><a href="#gen_scatter_random_rotation">gen_scatter_random_rotation</a></td><td>bool</td><td><code class="inline">false</code></td></tr>
+<tr><td><a href="#gen_scatter_scale_min">gen_scatter_scale_min</a></td><td>float</td><td><code class="inline">1.0</code></td></tr>
+<tr><td><a href="#gen_scatter_scale_max">gen_scatter_scale_max</a></td><td>float</td><td><code class="inline">1.0</code></td></tr>
+<tr><td><a href="#gen_instance_data">gen_instance_data</a></td><td>MultiNodeInstanceData</td><td><code class="inline">null</code></td></tr>
+</table>
+
+<h3>Property Descriptions</h3>
+
+<h4>gen_mode</h4>
+
+<li><strong>Type:</strong> GeneratorMode</li>
+<li><strong>Default:</strong> <code class="inline">GEN_ARRAY (0)</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_generator_mode(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_generator_mode()</code></li>
+
+<p>The generation algorithm. Array creates grid/chain patterns. Mesh Fill scatters on/in a mesh. Manual allows hand-placement of individual instances.</p>
+
+<p>---</p>
+
+<h4>gen_count</h4>
+
+<li><strong>Type:</strong> int</li>
+<li><strong>Default:</strong> <code class="inline">10</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_generator_count(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_generator_count()</code></li>
+
+<p>Number of instances to generate. Hidden in Manual mode.</p>
+
+<p>---</p>
+
+<h4>gen_seed</h4>
+
+<li><strong>Type:</strong> int</li>
+<li><strong>Default:</strong> <code class="inline">0</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_generator_seed(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_generator_seed()</code></li>
+
+<p>Random seed for reproducible generation. 0 = non-deterministic. Hidden in Manual mode.</p>
+
+<p>---</p>
+
+<h4>gen_animate</h4>
+
+<li><strong>Type:</strong> bool</li>
+<li><strong>Default:</strong> <code class="inline">false</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_animate(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_animate()</code></li>
+
+<p>When enabled, the generator regenerates every frame during _process. Use for animated mesh fills, dynamic array reshaping, or runtime swarm patterns. Hidden in Manual mode.</p>
+
+<p>---</p>
+
+<h4>gen_array_origin</h4>
+
+<li><strong>Type:</strong> Vector3</li>
+<li><strong>Default:</strong> <code class="inline">Vector3(0, 0, 0)</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_array_origin(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_array_origin()</code></li>
+
+<p>Starting position for array generation.</p>
+
+<p>---</p>
+
+<h4>gen_array_spacing</h4>
+
+<li><strong>Type:</strong> Vector3</li>
+<li><strong>Default:</strong> <code class="inline">Vector3(2, 2, 2)</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_array_spacing(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_array_spacing()</code></li>
+
+<p>Distance between instances along each axis.</p>
+
+<p>---</p>
+
+<h4>gen_array_rows</h4>
+
+<li><strong>Type:</strong> int</li>
+<li><strong>Default:</strong> <code class="inline">0</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_array_rows(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_array_rows()</code></li>
+
+<p>Number of instances per row. Negative reverses direction. 0 = single row (no wrapping).</p>
+
+<p>---</p>
+
+<h4>gen_array_cols</h4>
+
+<li><strong>Type:</strong> int</li>
+<li><strong>Default:</strong> <code class="inline">0</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_array_cols(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_array_cols()</code></li>
+
+<p>Number of columns before wrapping to a new layer. Negative reverses direction. 0 = single column.</p>
+
+<p>---</p>
+
+<h4>gen_array_flip_layers</h4>
+
+<li><strong>Type:</strong> bool</li>
+<li><strong>Default:</strong> <code class="inline">false</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_array_flip_layers(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_array_flip_layers()</code></li>
+
+<p>Reverses the Y-axis direction for layer stacking.</p>
+
+<p>---</p>
+
+<h4>gen_array_follow_rotation</h4>
+
+<li><strong>Type:</strong> bool</li>
+<li><strong>Default:</strong> <code class="inline">false</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_array_follow_rotation(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_array_follow_rotation()</code></li>
+
+<p>When enabled, each instance is a chained transformation of the previous one (like links in a chain). When disabled, rotation is cosmetic per-index scaling.</p>
+
+<p>---</p>
+
+<h4>gen_array_rotation</h4>
+
+<li><strong>Type:</strong> Vector3</li>
+<li><strong>Default:</strong> <code class="inline">Vector3(0, 0, 0)</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_array_rotation(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_array_rotation()</code></li>
+
+<p>Per-instance rotation in degrees. In chained mode, each instance rotates relative to the previous. In grid mode, rotation accumulates per index.</p>
+
+<p>---</p>
+
+<h4>gen_array_scale_step</h4>
+
+<li><strong>Type:</strong> float</li>
+<li><strong>Default:</strong> <code class="inline">1.0</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_array_scale_step(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_array_scale_step()</code></li>
+
+<p>Scale multiplier applied per instance. 1.0 = uniform size. Values like 0.95 create shrinking chains.</p>
+
+<p>---</p>
+
+<h4>gen_fill_mesh</h4>
+
+<li><strong>Type:</strong> Mesh</li>
+<li><strong>Default:</strong> <code class="inline">null</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_fill_mesh(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_fill_mesh()</code></li>
+
+<p>The mesh geometry to fill with instances. Required for Mesh Fill mode.</p>
+
+<p>---</p>
+
+<h4>gen_fill_mode</h4>
+
+<li><strong>Type:</strong> FillMode</li>
+<li><strong>Default:</strong> <code class="inline">FILL_SURFACE (0)</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_fill_mode(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_fill_mode()</code></li>
+
+<p>Cover Surface distributes instances across the mesh surface weighted by triangle area. Fill Volume places instances inside the mesh using rejection sampling.</p>
+
+<p>---</p>
+
+<h4>gen_fill_align</h4>
+
+<li><strong>Type:</strong> bool</li>
+<li><strong>Default:</strong> <code class="inline">true</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_fill_align(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_fill_align()</code></li>
+
+<p>Align instance orientation to the surface normal at the placement point. Only affects Cover Surface mode.</p>
+
+<p>---</p>
+
+<h4>gen_fill_min_distance</h4>
+
+<li><strong>Type:</strong> float</li>
+<li><strong>Default:</strong> <code class="inline">0.0</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_fill_min_distance(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_fill_min_distance()</code></li>
+
+<p>Minimum distance between placed instances. Higher values produce more uniform spacing but may fail to place all requested instances.</p>
+
+<p>---</p>
+
+<h4>gen_scatter_enabled</h4>
+
+<li><strong>Type:</strong> bool</li>
+<li><strong>Default:</strong> <code class="inline">false</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_scatter_enabled(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_scatter_enabled()</code></li>
+
+<p>Apply random scatter effects after generation. Adds variation to any generation mode.</p>
+
+<p>---</p>
+
+<h4>gen_scatter_jitter</h4>
+
+<li><strong>Type:</strong> Vector3</li>
+<li><strong>Default:</strong> <code class="inline">Vector3(0, 0, 0)</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_scatter_jitter(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_scatter_jitter()</code></li>
+
+<p>Random position offset per axis. Each instance is displaced by a random value in the range [-jitter, +jitter] per axis.</p>
+
+<p>---</p>
+
+<h4>gen_scatter_random_rotation</h4>
+
+<li><strong>Type:</strong> bool</li>
+<li><strong>Default:</strong> <code class="inline">false</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_scatter_random_rotation(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_scatter_random_rotation()</code></li>
+
+<p>Add a random Y-axis rotation to each instance.</p>
+
+<p>---</p>
+
+<h4>gen_scatter_scale_min</h4>
+
+<li><strong>Type:</strong> float</li>
+<li><strong>Default:</strong> <code class="inline">1.0</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_scatter_scale_min(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_scatter_scale_min()</code></li>
+
+<p>Minimum random scale. When min equals max, no scale variation is applied.</p>
+
+<p>---</p>
+
+<h4>gen_scatter_scale_max</h4>
+
+<li><strong>Type:</strong> float</li>
+<li><strong>Default:</strong> <code class="inline">1.0</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_scatter_scale_max(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_scatter_scale_max()</code></li>
+
+<p>Maximum random scale.</p>
+
+<p>---</p>
+
+<h4>gen_instance_data</h4>
+
+<li><strong>Type:</strong> MultiNodeInstanceData</li>
+<li><strong>Default:</strong> <code class="inline">null</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_instance_data_resource(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_instance_data_resource()</code></li>
+
+<p>Optional resource to save/load generated instance transforms. Use Save Instance Data to snapshot the current state.</p>
+
+<h3>Methods</h3>
+
+<table>
+<tr><th>Return</th><th>Name</th></tr>
+<tr><td>void</td><td><a href="#generate">generate</a>()</td></tr>
+<tr><td>void</td><td><a href="#clear_and_notify">clear_and_notify</a>()</td></tr>
+<tr><td>void</td><td><a href="#save_instance_data">save_instance_data</a>()</td></tr>
+<tr><td>void</td><td><a href="#exclude_instance">exclude_instance</a>(local_index: int)</td></tr>
+<tr><td>void</td><td><a href="#include_instance">include_instance</a>(local_index: int)</td></tr>
+<tr><td>bool</td><td><a href="#is_instance_excluded">is_instance_excluded</a>(local_index: int)</td></tr>
+<tr><td>int</td><td><a href="#get_owned_start">get_owned_start</a>()</td></tr>
+<tr><td>int</td><td><a href="#get_owned_count">get_owned_count</a>()</td></tr>
+<tr><td>int</td><td><a href="#local_to_parent_index">local_to_parent_index</a>(local: int)</td></tr>
+<tr><td>int</td><td><a href="#parent_to_local_index">parent_to_local_index</a>(parent: int)</td></tr>
+</table>
+
+<h3>Method Descriptions</h3>
+
+<h4>generate</h4>
+
+<pre><code>
+void generate()
+</code></pre>
+
+<p>Run the generator. Creates transforms based on the current mode and settings, applies scatter if enabled, and writes results to the parent MultiNode. Multiple generators coordinate automatically -- each owns a contiguous slice of the parent&#x27;s instances.</p>
+
+<p>---</p>
+
+<h4>clear_and_notify</h4>
+
+<pre><code>
+void clear_and_notify()
+</code></pre>
+
+<p>Remove all instances owned by this generator and update the parent.</p>
+
+<p>---</p>
+
+<h4>save_instance_data</h4>
+
+<pre><code>
+void save_instance_data()
+</code></pre>
+
+<p>Save the current generated transforms to the gen_instance_data resource. Creates a new MultiNodeInstanceData resource if none is assigned.</p>
+
+<p>---</p>
+
+<h4>exclude_instance</h4>
+
+<pre><code>
+void exclude_instance(local_index: int)
+</code></pre>
+
+<p>Mark an instance as excluded (broken away). The generator will stop overwriting its transform, allowing physics, scripts, or other systems to control it independently. Index is local to this generator&#x27;s owned slice.</p>
+
+<p>---</p>
+
+<h4>include_instance</h4>
+
+<pre><code>
+void include_instance(local_index: int)
+</code></pre>
+
+<p>Remove the exclusion flag from an instance, returning it to generator control.</p>
+
+<p>---</p>
+
+<h4>is_instance_excluded</h4>
+
+<pre><code>
+bool is_instance_excluded(local_index: int)
+</code></pre>
+
+<p>Check whether an instance is excluded from generator control.</p>
+
+<p>---</p>
+
+<h4>get_owned_start</h4>
+
+<pre><code>
+int get_owned_start()
+</code></pre>
+
+<p>Returns the first parent index owned by this generator.</p>
+
+<p>---</p>
+
+<h4>get_owned_count</h4>
+
+<pre><code>
+int get_owned_count()
+</code></pre>
+
+<p>Returns how many parent instances this generator owns.</p>
+
+<p>---</p>
+
+<h4>local_to_parent_index</h4>
+
+<pre><code>
+int local_to_parent_index(local: int)
+</code></pre>
+
+<p>Convert a generator-local index to a parent MultiNode index.</p>
+
+<p>---</p>
+
+<h4>parent_to_local_index</h4>
+
+<pre><code>
+int parent_to_local_index(parent: int)
+</code></pre>
+
+<p>Convert a parent MultiNode index to a generator-local index.</p>
+
+<h3>Enumerations</h3>
+
+<h4>enum GeneratorMode</h4>
+
+<table>
+<tr><th>Constant</th><th>Value</th><th>Description</th></tr>
+<tr><td>GEN_ARRAY</td><td><code class="inline">0</code></td><td>Generate instances in grid or chained patterns.</td></tr>
+<tr><td>GEN_MESH_FILL</td><td><code class="inline">1</code></td><td>Scatter instances across a mesh surface or fill its volume.</td></tr>
+<tr><td>GEN_MANUAL</td><td><code class="inline">2</code></td><td>Hand-place instances one at a time via inspector controls.</td></tr>
+</table>
+
+<h4>enum FillMode</h4>
+
+<table>
+<tr><th>Constant</th><th>Value</th><th>Description</th></tr>
+<tr><td>FILL_SURFACE</td><td><code class="inline">0</code></td><td>Distribute instances across the mesh surface, weighted by triangle area.</td></tr>
+<tr><td>FILL_VOLUME</td><td><code class="inline">1</code></td><td>Fill the mesh interior using rejection sampling within the AABB.</td></tr>
+</table>
+</section>
+<section class="class-section"><h2 class="class-name" id="MultiNodeInstanceData">MultiNodeInstanceData</h2>
+
+<p class="inherits"><strong>Inherits:</strong> Resource</p>
+
+<p>Serializable snapshot of instance transforms and optional custom data for MultiNode.</p>
+
+<h3>Description</h3>
+
+<p>MultiNodeInstanceData stores an array of Transform3D and an optional flat PackedFloat32Array for per-instance custom data. Save as .tres or .res and assign to a MultiNodeInstancer&#x27;s gen_instance_data property to load instances from a saved snapshot. Use the &quot;Save Instance Data&quot; button on MultiNodeInstancer to create snapshots.</p>
+
+<h3>Properties</h3>
+
+<table>
+<tr><th>Name</th><th>Type</th><th>Default</th></tr>
+<tr><td><a href="#transforms">transforms</a></td><td>Array</td><td><code class="inline">[]</code></td></tr>
+<tr><td><a href="#custom_data">custom_data</a></td><td>PackedFloat32Array</td><td><code class="inline">PackedFloat32Array()</code></td></tr>
+</table>
+
+<h3>Property Descriptions</h3>
+
+<h4>transforms</h4>
+
+<li><strong>Type:</strong> Array</li>
+<li><strong>Default:</strong> <code class="inline">[]</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_transforms(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_transforms()</code></li>
+
+<p>Array of Transform3D, one per saved instance.</p>
+
+<p>---</p>
+
+<h4>custom_data</h4>
+
+<li><strong>Type:</strong> PackedFloat32Array</li>
+<li><strong>Default:</strong> <code class="inline">PackedFloat32Array()</code></li>
+<li><strong>Setter:</strong> <code class="inline">set_custom_data(value)</code></li>
+<li><strong>Getter:</strong> <code class="inline">get_custom_data()</code></li>
+
+<p>Optional flat float array for per-instance custom data. Length should be instance_count * data_stride.</p>
+
+<h3>Methods</h3>
+
+<table>
+<tr><th>Return</th><th>Name</th></tr>
+<tr><td>int</td><td><a href="#get_instance_count">get_instance_count</a>()</td></tr>
+</table>
+
+<h3>Method Descriptions</h3>
+
+<h4>get_instance_count</h4>
+
+<pre><code>
+int get_instance_count()
+</code></pre>
+
+<p>Returns the number of instances stored in this resource (transforms array size).</p>
+</section>
+</main>
+</body>
+</html>
