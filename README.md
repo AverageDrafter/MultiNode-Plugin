@@ -4,6 +4,12 @@
 
 **Version:** 0.2.0-alpha (Windows x86_64)
 
+## Links
+
+- [API Reference](https://averagedrafter.github.io/MultiNode-Plugin/docs/MultiNodeDocs.html)
+- [Source & Development](https://github.com/AverageDrafter/MultiNode-Plugin-Working)
+- [Issues & Feedback](https://github.com/AverageDrafter/MultiNode-Plugin/issues)
+
 ## Installation
 
 1. Download or clone this repository
