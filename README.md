@@ -1,6 +1,6 @@
 # MultiNode for Godot 4.6
 
-**Compositional instancing system for Godot 4.6.** One parent node, 15 specialized child types, thousands of instances in a single draw call. Mesh, collision, animation, audio, particles, lights, labels, decals, raycasts, and areas -- compose what you need, skip what you don't.
+**Compositional instancing system for Godot 4.6.** One parent node, 15 specialized child types, thousands of instances from one collection of nodes. Mesh, collision, animation, audio, particles, lights, labels, decals, raycasts, and areas -- compose what you need, skip what you don't.
 
 **Version:** 0.2.0-alpha (Windows x86_64)
 
