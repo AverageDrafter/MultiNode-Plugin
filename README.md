@@ -112,6 +112,22 @@ Requires: Python 3, SCons, C++ compiler (MSVC or MinGW-w64 on Windows).
 - Godot 4.6+ (standard or .NET build)
 - Windows x86_64 (precompiled), or build from source for other platforms
 
+## Demo Scene
+
+A playable demo is included at `addons/multi_node/demo/demo_scene.tscn`. Open it, hit Play, and use the bottom control panel to toggle sub-nodes on and off. Right-click to fly the camera (WASD + QE + mouse).
+
+## Asset Credits
+
+Demo scene assets are included for demonstration purposes only:
+
+**Sprites**
+- Priest-Walk.png -- [Tiny RPG Character Asset Pack](https://axulart.itch.io/tiny-rpg-character-asset-pack) by AxulArt
+
+**Sounds**
+- dragon-studio-new-notification-3-398649.wav -- [Dragon Studio](https://pixabay.com/users/dragon-studio/) via Pixabay
+- freesound_community-low-ambient-hum-70327.wav -- [Freesound Community](https://freesound.org/) (ID 70327)
+- van_wiese-bass-wiggle-297877.wav -- [Van Wiese](https://pixabay.com/users/van_wiese/) via Pixabay
+
 ## License
 
 MIT -- see [LICENSE](LICENSE)
