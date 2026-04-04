@@ -134,5 +134,6 @@ MIT -- see [LICENSE](LICENSE)
 
 ## Links
 
+- [API Reference](https://averagedrafter.github.io/MultiNode-Plugin/docs/MultiNodeDocs.html)
 - [Source & Development](https://github.com/AverageDrafter/MultiNode-Plugin-Working)
 - [Issues & Feedback](https://github.com/AverageDrafter/MultiNode-Plugin/issues)
