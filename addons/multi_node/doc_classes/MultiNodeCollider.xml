@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="MultiNodeCollider" inherits="MultiNode3D" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		Creates and manages physics bodies for each instance via PhysicsServer3D.
+	</brief_description>
+	<description>
+		MultiNodeCollider creates a physics body for each active instance in the parent MultiNode. Bodies can be static, kinematic, or rigid. Rigid bodies read their transforms back from the physics engine each frame, automatically skipping sleeping bodies. Inactive instances have their bodies removed from the physics space. Use get_instance_from_body() to identify which instance was hit in collision callbacks.
+	</description>
+	<members>
+		<member name="shape" type="Shape3D" setter="set_shape" getter="get_shape">
+			The collision shape used for every instance. All instances share this single shape resource. Assign any Shape3D (BoxShape3D, SphereShape3D, ConvexPolygonShape3D, etc.).
+		</member>
+		<member name="body_type" type="int" setter="set_body_type" getter="get_body_type" enum="MultiNodeCollider.BodyType" default="0">
+			The physics body type for all instances. Static = immovable, no physics simulation. Kinematic = moved by code, pushes rigid bodies. Rigid = full physics simulation with gravity and collisions, transforms are read back from the physics engine each frame.
+		</member>
+		<member name="collision_layer" type="int" setter="set_collision_layer" getter="get_collision_layer" default="1">
+			The physics layer bitmask that these bodies exist on. Other bodies detect collisions with these instances based on their collision_mask.
+		</member>
+		<member name="collision_mask" type="int" setter="set_collision_mask" getter="get_collision_mask" default="1">
+			The physics layer bitmask that these bodies scan for collisions against. Only bodies on matching layers are detected.
+		</member>
+		<member name="self_collision" type="bool" setter="set_self_collision" getter="get_self_collision" default="true">
+			When enabled, instances can collide with each other. When disabled, rigid body instances are placed on an internal physics layer (layer 20) to prevent self-collision. Note: this layer override only affects rigid bodies — static and kinematic bodies always use your configured collision_layer since they cannot self-collide. External objects must include layer 20 in their collision mask to detect rigid bodies with self_collision disabled.
+		</member>
+		<member name="preserve_velocity" type="bool" setter="set_preserve_velocity" getter="get_preserve_velocity" default="false">
+			When enabled, linear and angular velocity are saved to the parent MultiNode's velocity bus when a body is removed from the physics space (deactivated), and restored when it re-enters. Use for seamless collider hot-swapping between LOD levels.
+		</member>
+	</members>
+	<methods>
+		<method name="get_instance_from_body">
+			<return type="int" />
+			<param index="0" name="body_rid" type="RID" />
+			<description>
+				Map a physics body RID back to an instance index. Returns -1 if the RID does not belong to this node. Use in collision callbacks to identify which instance was involved.
+			</description>
+		</method>
+		<method name="get_body_rid">
+			<return type="RID" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Get the PhysicsServer3D body RID for a specific instance. Use for direct physics queries or applying forces to individual instances.
+			</description>
+		</method>
+	</methods>
+	<constants>
+		<constant name="BODY_TYPE_STATIC" value="0" enum="BodyType">
+			Immovable body. No physics simulation.
+		</constant>
+		<constant name="BODY_TYPE_KINEMATIC" value="1" enum="BodyType">
+			Code-driven body that pushes other objects.
+		</constant>
+		<constant name="BODY_TYPE_RIGID" value="2" enum="BodyType">
+			Fully simulated rigid body with gravity and collisions.
+		</constant>
+	</constants>
+</class>

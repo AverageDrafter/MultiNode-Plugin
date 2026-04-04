@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="MultiNodeInstanceData" inherits="Resource" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		Serializable snapshot of instance transforms and optional custom data for MultiNode.
+	</brief_description>
+	<description>
+		MultiNodeInstanceData stores an array of Transform3D and an optional flat PackedFloat32Array for per-instance custom data. Save as .tres or .res and assign to a MultiNodeInstanceGen's gen_instance_data property to load instances from a saved snapshot. Use the "Save Instance Data" button on MultiNodeInstanceGen to create snapshots.
+	</description>
+	<members>
+		<member name="transforms" type="Array" setter="set_transforms" getter="get_transforms" default="[]">
+			Array of Transform3D, one per saved instance.
+		</member>
+		<member name="custom_data" type="PackedFloat32Array" setter="set_custom_data" getter="get_custom_data" default="PackedFloat32Array()">
+			Optional flat float array for per-instance custom data. Length should be instance_count * data_stride.
+		</member>
+	</members>
+	<methods>
+		<method name="get_instance_count">
+			<return type="int" />
+			<description>
+				Returns the number of instances stored in this resource (transforms array size).
+			</description>
+		</method>
+	</methods>
+</class>

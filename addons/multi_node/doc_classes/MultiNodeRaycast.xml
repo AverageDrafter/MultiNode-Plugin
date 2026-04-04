@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="MultiNodeRaycast" inherits="MultiNode3D" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		Per-instance raycasting for ground detection, line of sight, and surface probing.
+	</brief_description>
+	<description>
+		MultiNodeRaycast casts a ray from each active instance every physics frame. Results are stored per-instance and queryable via is_instance_colliding(), get_instance_hit_point(), etc. Rays automatically exclude sibling MultiNodeCollider bodies to avoid self-hits. Use cases include ground detection for vehicles, line-of-sight checks for AI, terrain following, and wall detection.
+	</description>
+	<members>
+		<member name="cast_direction" type="Vector3" setter="set_cast_direction" getter="get_cast_direction" default="Vector3(0, -1, 0)">
+			The direction each ray is cast, relative to the instance. Default is straight down. When use_instance_basis is enabled, this direction rotates with the instance. The vector is normalized automatically.
+		</member>
+		<member name="cast_length" type="float" setter="set_cast_length" getter="get_cast_length" default="10.0">
+			How far each ray extends from the instance origin, in meters. Longer rays are more expensive. Set to the minimum distance needed for your use case.
+		</member>
+		<member name="collision_mask" type="int" setter="set_collision_mask" getter="get_collision_mask" default="1">
+			The physics layer bitmask that rays detect. Only bodies on matching layers are hit.
+		</member>
+		<member name="hit_from_inside" type="bool" setter="set_hit_from_inside" getter="get_hit_from_inside" default="false">
+			When enabled, rays can hit the inside of collision shapes. Useful when instances start inside geometry and need to detect the enclosing surface.
+		</member>
+	</members>
+	<methods>
+		<method name="is_instance_colliding">
+			<return type="bool" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Check whether the ray for a specific instance hit something last physics frame.
+			</description>
+		</method>
+		<method name="get_instance_hit_point">
+			<return type="Vector3" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Get the world-space position where the ray hit. Returns the ray endpoint if nothing was hit.
+			</description>
+		</method>
+		<method name="get_instance_hit_normal">
+			<return type="Vector3" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Get the surface normal at the hit point. Returns zero vector if nothing was hit.
+			</description>
+		</method>
+		<method name="get_instance_hit_distance">
+			<return type="float" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Get the distance from the ray origin to the hit point. Returns the full cast_length if nothing was hit.
+			</description>
+		</method>
+		<method name="get_instance_hit_rid">
+			<return type="RID" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Get the RID of the collider that was hit. Can be passed to a sibling MultiNodeCollider's get_instance_from_body() to identify which instance was hit.
+			</description>
+		</method>
+	</methods>
+</class>

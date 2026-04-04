@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="MultiNodeArea" inherits="MultiNode3D" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		Detection zones for each instance via PhysicsServer3D areas.
+	</brief_description>
+	<description>
+		MultiNodeArea creates a PhysicsServer3D area for each active instance in the parent MultiNode. Areas detect overlapping bodies without applying physics forces. Use cases include trigger zones, pickup detection, proximity alerts, and checkpoints. Use get_instance_from_area() to identify which instance's area was entered.
+	</description>
+	<members>
+		<member name="shape" type="Shape3D" setter="set_shape" getter="get_shape">
+			The detection shape used for every instance. All instances share this single shape resource.
+		</member>
+		<member name="collision_layer" type="int" setter="set_collision_layer" getter="get_collision_layer" default="1">
+			The physics layer bitmask that these areas exist on. Other bodies and areas detect these instances based on their collision_mask.
+		</member>
+		<member name="collision_mask" type="int" setter="set_collision_mask" getter="get_collision_mask" default="1">
+			The physics layer bitmask that these areas scan for overlaps against. Only bodies and areas on matching layers trigger detection.
+		</member>
+		<member name="monitorable" type="bool" setter="set_monitorable" getter="get_monitorable" default="false">
+			When enabled, other Area3D nodes can detect these instance areas. When disabled, these areas can detect bodies but are invisible to other areas. Disable for better performance when you only need body detection.
+		</member>
+	</members>
+	<methods>
+		<method name="get_instance_area_rid">
+			<return type="RID" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Get the PhysicsServer3D area RID for a specific instance. Use for custom intersection queries.
+			</description>
+		</method>
+		<method name="get_instance_from_area">
+			<return type="int" />
+			<param index="0" name="area_rid" type="RID" />
+			<description>
+				Map an area RID back to an instance index. Returns -1 if not found. Use in area overlap callbacks to identify which instance's zone was triggered.
+			</description>
+		</method>
+	</methods>
+</class>

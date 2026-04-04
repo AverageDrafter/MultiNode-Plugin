@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="MultiNodeLight" inherits="MultiNodeVisual3D" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		Dynamic omni or spot lights for each instance.
+	</brief_description>
+	<description>
+		MultiNodeLight creates a RenderingServer light for each active instance in the parent MultiNode. Supports omni (point) and spot light types. Use cases include headlights, warning beacons, task lights, and streetlamps. Light count should be kept reasonable — use instance_every to reduce the number of active lights for performance.
+	</description>
+	<members>
+		<member name="light_type" type="int" setter="set_light_type" getter="get_light_type" enum="MultiNodeLight.LightType" default="0">
+			The type of light created for each instance. Omni = point light radiating in all directions. Spot = directional cone light aimed along the instance's forward axis.
+		</member>
+		<member name="light_color" type="Color" setter="set_light_color" getter="get_light_color" default="Color(1, 1, 1, 1)">
+			The base color of all lights. Per-instance color overrides are applied via set_instance_color() from the MultiNodeVisual3D base class.
+		</member>
+		<member name="light_energy" type="float" setter="set_light_energy" getter="get_light_energy" default="1.0">
+			The brightness multiplier for all lights. Higher values produce brighter illumination. Per-instance energy can be set via set_instance_energy().
+		</member>
+		<member name="light_range" type="float" setter="set_light_range" getter="get_light_range" default="10.0">
+			The maximum distance in meters that each light illuminates. Surfaces beyond this range receive no light.
+		</member>
+		<member name="spot_angle" type="float" setter="set_spot_angle" getter="get_spot_angle" default="45.0">
+			The half-angle of the spot light cone in degrees. Only used when light_type is Spot. Larger angles produce a wider cone.
+		</member>
+		<member name="shadow_enabled" type="bool" setter="set_shadow_enabled" getter="get_shadow_enabled" default="false">
+			When enabled, each light casts shadows. This is expensive — each shadow-casting light requires a separate shadow map render pass. Use sparingly with large instance counts.
+		</member>
+	</members>
+	<methods>
+		<method name="set_instance_energy">
+			<return type="void" />
+			<param index="0" name="index" type="int" />
+			<param index="1" name="energy" type="float" />
+			<description>
+				Override the brightness for a single instance's light. Use for flickering effects, dimming, or per-instance intensity variation.
+			</description>
+		</method>
+	</methods>
+	<constants>
+		<constant name="LIGHT_OMNI" value="0" enum="LightType">
+			Point light radiating in all directions.
+		</constant>
+		<constant name="LIGHT_SPOT" value="1" enum="LightType">
+			Directional cone light.
+		</constant>
+	</constants>
+</class>

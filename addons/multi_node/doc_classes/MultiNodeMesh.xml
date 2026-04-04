@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="MultiNodeMesh" inherits="MultiNodeVisual3D" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		Renders a mesh for each instance using GPU-instanced MultiMesh.
+	</brief_description>
+	<description>
+		MultiNodeMesh renders a shared mesh for every active instance in the parent MultiNode using a single MultiMesh draw call. Inactive instances are hidden via zero-scale transform. Supports per-instance color modulation and material overrides. This is the primary visual node for most use cases.
+	</description>
+	<members>
+		<member name="mesh" type="Mesh" setter="set_mesh" getter="get_mesh">
+			The mesh resource rendered for each instance. All instances share this single mesh. Assign any Mesh resource (BoxMesh, SphereMesh, imported .obj, etc.).
+		</member>
+		<member name="material_override" type="Material" setter="set_material_override" getter="get_material_override">
+			Optional material that overrides the mesh's built-in material for all instances. Leave empty to use the mesh's own material.
+		</member>
+		<member name="use_instance_colors" type="bool" setter="set_use_instance_colors" getter="get_use_instance_colors" default="false">
+			When enabled, per-instance colors from the MultiNodeVisual3D base class are passed to the MultiMesh. Your shader must read COLOR or INSTANCE_COLOR to use them. Enabling this allocates an extra 4 floats per instance in the GPU buffer.
+		</member>
+	</members>
+</class>

@@ -1,0 +1,12 @@
+# Godot
+.godot/
+*.uid
+
+# Build artifacts
+*.o
+.sconsign.dblite
+godot-cpp/
+
+# OS
+.DS_Store
+Thumbs.db

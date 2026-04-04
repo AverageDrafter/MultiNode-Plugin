@@ -1,0 +1,33 @@
+[configuration]
+entry_symbol = "multi_node_library_init"
+compatibility_minimum = "4.3"
+reloadable = true
+
+[libraries]
+windows.debug.x86_64 = "res://addons/multi_node/bin/libmultinode.windows.template_debug.x86_64.dll"
+windows.release.x86_64 = "res://addons/multi_node/bin/libmultinode.windows.template_release.x86_64.dll"
+linux.debug.x86_64 = "res://addons/multi_node/bin/libmultinode.linux.template_debug.x86_64.so"
+linux.release.x86_64 = "res://addons/multi_node/bin/libmultinode.linux.template_release.x86_64.so"
+macos.debug = "res://addons/multi_node/bin/libmultinode.macos.template_debug.framework"
+macos.release = "res://addons/multi_node/bin/libmultinode.macos.template_release.framework"
+
+[documentation]
+class_reference = "res://addons/multi_node/doc_classes"
+
+[icons]
+MultiNode = "res://addons/multi_node/icons/multi_node.svg"
+MultiNodeSub = "res://addons/multi_node/icons/multi_node_sub.svg"
+MultiNode3D = "res://addons/multi_node/icons/multi_node_sub.svg"
+MultiNodeVisual3D = "res://addons/multi_node/icons/multi_node_sub.svg"
+MultiNodeMesh = "res://addons/multi_node/icons/multi_node_mesh.svg"
+MultiNodeCollider = "res://addons/multi_node/icons/multi_node_collider.svg"
+MultiNodeLabel = "res://addons/multi_node/icons/multi_node_label.svg"
+MultiNodeAnimator = "res://addons/multi_node/icons/multi_node_animator.svg"
+MultiNodeAudio = "res://addons/multi_node/icons/multi_node_audio.svg"
+MultiNodeArea = "res://addons/multi_node/icons/multi_node_area.svg"
+MultiNodeRaycast = "res://addons/multi_node/icons/multi_node_raycast.svg"
+MultiNodeParticle = "res://addons/multi_node/icons/multi_node_particle.svg"
+MultiNodeSprite = "res://addons/multi_node/icons/multi_node_sprite.svg"
+MultiNodeDecal = "res://addons/multi_node/icons/multi_node_decal.svg"
+MultiNodeLight = "res://addons/multi_node/icons/multi_node_light.svg"
+MultiNodeInstancer = "res://addons/multi_node/icons/multi_node_instancer.svg"

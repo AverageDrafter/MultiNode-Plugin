@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="MultiNodeLabel" inherits="MultiNodeVisual3D" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		Billboard text labels rendered above instances using a shared text atlas.
+	</brief_description>
+	<description>
+		MultiNodeLabel renders text labels for instances using GPU-instanced billboard quads. All labels share a single text atlas texture built via SubViewport, drawn in one MultiMesh draw call. Per-instance text is set via set_instance_text(). Empty string = no label. The atlas rebuilds automatically when texts change. Labels always face the camera (Y-locked billboard).
+	</description>
+	<members>
+		<member name="font" type="Font" setter="set_font" getter="get_font">
+			The font used to render label text. If not set, the engine's default fallback font is used.
+		</member>
+		<member name="font_size" type="int" setter="set_font_size" getter="get_font_size" default="32">
+			The font size in pixels used when rendering text into the atlas. Larger sizes produce sharper text but use more atlas space.
+		</member>
+		<member name="text_color" type="Color" setter="set_text_color" getter="get_text_color" default="Color(1, 1, 1, 1)">
+			The color of the label text. Applied when rendering into the atlas, so changes trigger an atlas rebuild.
+		</member>
+		<member name="outline_color" type="Color" setter="set_outline_color" getter="get_outline_color" default="Color(0, 0, 0, 1)">
+			The color of the text outline. Helps text stand out against varying backgrounds.
+		</member>
+		<member name="outline_size" type="int" setter="set_outline_size" getter="get_outline_size" default="4">
+			The thickness of the text outline in pixels. Set to 0 to disable outlines.
+		</member>
+		<member name="label_height" type="float" setter="set_label_height" getter="get_label_height" default="0.5">
+			The height of each label quad in world units. Width is automatically set to 3x the height. Controls how large labels appear in the 3D world.
+		</member>
+	</members>
+	<methods>
+		<method name="set_instance_text">
+			<return type="void" />
+			<param index="0" name="index" type="int" />
+			<param index="1" name="text" type="String" />
+			<description>
+				Set the text displayed for a specific instance. Empty string hides the label for that instance. Duplicate texts share atlas cells automatically. The atlas rebuilds on the next frame after all texts are set.
+			</description>
+		</method>
+		<method name="get_instance_text">
+			<return type="String" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Get the currently displayed text for a specific instance.
+			</description>
+		</method>
+	</methods>
+</class>

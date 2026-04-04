@@ -1,0 +1,66 @@
+#!/usr/bin/env python
+"""
+Build script for MultiNode GDExtension.
+
+Usage:
+    scons                           # Debug build for current platform
+    scons target=template_release   # Release build
+    scons platform=windows          # Explicit platform
+
+Prerequisites:
+    - Python 3.x
+    - SCons (pip install scons)
+    - C++ compiler (Visual Studio 2022 with C++ workload, or MinGW-w64)
+    - godot-cpp cloned into this directory:
+        git clone https://github.com/godotengine/godot-cpp.git -b 4.6
+        (use the branch matching your Godot version)
+"""
+
+env = SConscript("godot-cpp/SConstruct")
+
+# On Windows, my_spawn.py builds a bare string command and passes it to
+# Popen(shell=False). If the compiler path contains spaces (e.g. the Git-
+# bundled MinGW at "C:\Program Files\Git\..."), CreateProcess splits on the
+# space and fails with ERROR_FILE_NOT_FOUND. Override CXX/CC/AR/RANLIB to the
+# no-spaces C:\mingw64\bin installation if it exists.
+import os, sys, subprocess, tempfile as _tmpmod
+if sys.platform == "win32":
+    _mbin = r"C:\mingw64\bin"
+    if os.path.isdir(_mbin):
+        for _tool, _exe in [("CXX","g++.exe"),("CC","gcc.exe"),
+                             ("SHLINK","x86_64-w64-mingw32-g++.exe"),
+                             ("LINK","x86_64-w64-mingw32-g++.exe"),
+                             ("AR","ar.exe"),("RANLIB","ranlib.exe"),
+                             ("RC","windres.exe")]:
+            _p = os.path.join(_mbin, _exe)
+            if os.path.isfile(_p):
+                env[_tool] = _p
+        env.PrependENVPath("PATH", _mbin)
+
+    # GNU ar on Windows hits the 32 KB command-line limit when archiving hundreds
+    # of .o files. Override ARCOM with a Python action that writes sources to a
+    # response file and invokes: ar rcs target @responsefile
+    # GNU ar (binutils ≥ 2.27) supports @file response files.
+    def _ar_rsp(target, source, env):
+        rsp = _tmpmod.NamedTemporaryFile(mode="w", suffix=".rsp", delete=False)
+        for s in source:
+            rsp.write(str(s).replace("\\", "/") + "\n")
+        rsp.close()
+        ar = env.subst("$AR")
+        tgt = str(target[0])
+        # Use subprocess without env override so system PATH is inherited.
+        ret = subprocess.call([ar, "rcs", tgt, "@" + rsp.name])
+        os.unlink(rsp.name)
+        return ret
+
+    env["ARCOM"] = _ar_rsp
+
+env.Append(CPPPATH=["src/"])
+sources = Glob("src/*.cpp")
+
+library = env.SharedLibrary(
+    target="bin/libmultinode{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
+    source=sources,
+)
+
+Default(library)

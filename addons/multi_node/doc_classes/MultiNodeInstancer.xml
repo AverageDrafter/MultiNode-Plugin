@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="MultiNodeInstancer" inherits="MultiNodeSub" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		Composable instance generator. Creates and manages instance transforms for its parent MultiNode.
+	</brief_description>
+	<description>
+		MultiNodeInstancer generates instance transforms using one of three modes (Array, Mesh Fill, or Manual) and writes them to the parent MultiNode's instance list. Add as a child of MultiNode — multiple generators can coexist, each owning a contiguous slice of the parent's instances. Tree order determines stacking order.
+
+Features:
+- [b]Array mode[/b]: Grid/chain patterns with configurable spacing, rotation, and scale stepping.
+- [b]Mesh Fill mode[/b]: Scatter instances across a mesh surface or fill its volume.
+- [b]Manual mode[/b]: Hand-place individual instances with inspector controls and viewport clicking.
+- [b]Animate[/b]: Regenerate every frame for runtime mesh-fill animation or dynamic arrays.
+- [b]Exclusion[/b]: Mark individual instances as "broken away" so the generator stops overwriting their transforms — ideal for swarm breakaway mechanics.
+- [b]Scatter[/b]: Apply random jitter, rotation, and scale variation on top of any generation mode.
+	</description>
+	<members>
+		<member name="gen_mode" type="int" setter="set_generator_mode" getter="get_generator_mode" enum="MultiNodeInstancer.GeneratorMode" default="0">
+			The generation algorithm. Array creates grid/chain patterns. Mesh Fill scatters on/in a mesh. Manual allows hand-placement of individual instances.
+		</member>
+		<member name="gen_count" type="int" setter="set_generator_count" getter="get_generator_count" default="10">
+			Number of instances to generate. Hidden in Manual mode.
+		</member>
+		<member name="gen_seed" type="int" setter="set_generator_seed" getter="get_generator_seed" default="0">
+			Random seed for reproducible generation. 0 = non-deterministic. Hidden in Manual mode.
+		</member>
+		<member name="gen_animate" type="bool" setter="set_animate" getter="get_animate" default="false">
+			When enabled, the generator regenerates every frame during _process. Use for animated mesh fills, dynamic array reshaping, or runtime swarm patterns. Hidden in Manual mode.
+		</member>
+		<member name="gen_array_origin" type="Vector3" setter="set_array_origin" getter="get_array_origin" default="Vector3(0, 0, 0)">
+			Starting position for array generation.
+		</member>
+		<member name="gen_array_spacing" type="Vector3" setter="set_array_spacing" getter="get_array_spacing" default="Vector3(2, 2, 2)">
+			Distance between instances along each axis.
+		</member>
+		<member name="gen_array_rows" type="int" setter="set_array_rows" getter="get_array_rows" default="0">
+			Number of instances per row. Negative reverses direction. 0 = single row (no wrapping).
+		</member>
+		<member name="gen_array_cols" type="int" setter="set_array_cols" getter="get_array_cols" default="0">
+			Number of columns before wrapping to a new layer. Negative reverses direction. 0 = single column.
+		</member>
+		<member name="gen_array_flip_layers" type="bool" setter="set_array_flip_layers" getter="get_array_flip_layers" default="false">
+			Reverses the Y-axis direction for layer stacking.
+		</member>
+		<member name="gen_array_follow_rotation" type="bool" setter="set_array_follow_rotation" getter="get_array_follow_rotation" default="false">
+			When enabled, each instance is a chained transformation of the previous one (like links in a chain). When disabled, rotation is cosmetic per-index scaling.
+		</member>
+		<member name="gen_array_rotation" type="Vector3" setter="set_array_rotation" getter="get_array_rotation" default="Vector3(0, 0, 0)">
+			Per-instance rotation in degrees. In chained mode, each instance rotates relative to the previous. In grid mode, rotation accumulates per index.
+		</member>
+		<member name="gen_array_scale_step" type="float" setter="set_array_scale_step" getter="get_array_scale_step" default="1.0">
+			Scale multiplier applied per instance. 1.0 = uniform size. Values like 0.95 create shrinking chains.
+		</member>
+		<member name="gen_fill_mesh" type="Mesh" setter="set_fill_mesh" getter="get_fill_mesh">
+			The mesh geometry to fill with instances. Required for Mesh Fill mode.
+		</member>
+		<member name="gen_fill_mode" type="int" setter="set_fill_mode" getter="get_fill_mode" enum="MultiNodeInstancer.FillMode" default="0">
+			Cover Surface distributes instances across the mesh surface weighted by triangle area. Fill Volume places instances inside the mesh using rejection sampling.
+		</member>
+		<member name="gen_fill_align" type="bool" setter="set_fill_align" getter="get_fill_align" default="true">
+			Align instance orientation to the surface normal at the placement point. Only affects Cover Surface mode.
+		</member>
+		<member name="gen_fill_min_distance" type="float" setter="set_fill_min_distance" getter="get_fill_min_distance" default="0.0">
+			Minimum distance between placed instances. Higher values produce more uniform spacing but may fail to place all requested instances.
+		</member>
+		<member name="gen_scatter_enabled" type="bool" setter="set_scatter_enabled" getter="get_scatter_enabled" default="false">
+			Apply random scatter effects after generation. Adds variation to any generation mode.
+		</member>
+		<member name="gen_scatter_jitter" type="Vector3" setter="set_scatter_jitter" getter="get_scatter_jitter" default="Vector3(0, 0, 0)">
+			Random position offset per axis. Each instance is displaced by a random value in the range [-jitter, +jitter] per axis.
+		</member>
+		<member name="gen_scatter_random_rotation" type="bool" setter="set_scatter_random_rotation" getter="get_scatter_random_rotation" default="false">
+			Add a random Y-axis rotation to each instance.
+		</member>
+		<member name="gen_scatter_scale_min" type="float" setter="set_scatter_scale_min" getter="get_scatter_scale_min" default="1.0">
+			Minimum random scale. When min equals max, no scale variation is applied.
+		</member>
+		<member name="gen_scatter_scale_max" type="float" setter="set_scatter_scale_max" getter="get_scatter_scale_max" default="1.0">
+			Maximum random scale.
+		</member>
+		<member name="gen_instance_data" type="MultiNodeInstanceData" setter="set_instance_data_resource" getter="get_instance_data_resource">
+			Optional resource to save/load generated instance transforms. Use Save Instance Data to snapshot the current state.
+		</member>
+	</members>
+	<methods>
+		<method name="generate">
+			<return type="void" />
+			<description>
+				Run the generator. Creates transforms based on the current mode and settings, applies scatter if enabled, and writes results to the parent MultiNode. Multiple generators coordinate automatically — each owns a contiguous slice of the parent's instances.
+			</description>
+		</method>
+		<method name="clear_and_notify">
+			<return type="void" />
+			<description>
+				Remove all instances owned by this generator and update the parent.
+			</description>
+		</method>
+		<method name="save_instance_data">
+			<return type="void" />
+			<description>
+				Save the current generated transforms to the gen_instance_data resource. Creates a new MultiNodeInstanceData resource if none is assigned.
+			</description>
+		</method>
+		<method name="exclude_instance">
+			<return type="void" />
+			<param index="0" name="local_index" type="int" />
+			<description>
+				Mark an instance as excluded (broken away). The generator will stop overwriting its transform, allowing physics, scripts, or other systems to control it independently. Index is local to this generator's owned slice.
+			</description>
+		</method>
+		<method name="include_instance">
+			<return type="void" />
+			<param index="0" name="local_index" type="int" />
+			<description>
+				Remove the exclusion flag from an instance, returning it to generator control.
+			</description>
+		</method>
+		<method name="is_instance_excluded">
+			<return type="bool" />
+			<param index="0" name="local_index" type="int" />
+			<description>
+				Check whether an instance is excluded from generator control.
+			</description>
+		</method>
+		<method name="get_owned_start">
+			<return type="int" />
+			<description>
+				Returns the first parent index owned by this generator.
+			</description>
+		</method>
+		<method name="get_owned_count">
+			<return type="int" />
+			<description>
+				Returns how many parent instances this generator owns.
+			</description>
+		</method>
+		<method name="local_to_parent_index">
+			<return type="int" />
+			<param index="0" name="local" type="int" />
+			<description>
+				Convert a generator-local index to a parent MultiNode index.
+			</description>
+		</method>
+		<method name="parent_to_local_index">
+			<return type="int" />
+			<param index="0" name="parent" type="int" />
+			<description>
+				Convert a parent MultiNode index to a generator-local index.
+			</description>
+		</method>
+	</methods>
+	<constants>
+		<constant name="GEN_ARRAY" value="0" enum="GeneratorMode">
+			Generate instances in grid or chained patterns.
+		</constant>
+		<constant name="GEN_MESH_FILL" value="1" enum="GeneratorMode">
+			Scatter instances across a mesh surface or fill its volume.
+		</constant>
+		<constant name="GEN_MANUAL" value="2" enum="GeneratorMode">
+			Hand-place instances one at a time via inspector controls.
+		</constant>
+		<constant name="FILL_SURFACE" value="0" enum="FillMode">
+			Distribute instances across the mesh surface, weighted by triangle area.
+		</constant>
+		<constant name="FILL_VOLUME" value="1" enum="FillMode">
+			Fill the mesh interior using rejection sampling within the AABB.
+		</constant>
+	</constants>
+</class>

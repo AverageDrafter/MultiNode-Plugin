@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="MultiNodeVisual3D" inherits="MultiNode3D" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		Base class for visual MultiNode children. Manages shadow casting, render layers, visibility range, and per-instance color tinting.
+	</brief_description>
+	<description>
+		MultiNodeVisual3D is the base for all rendering-related sub-nodes (Mesh, Label, Sprite, Particle, Decal, Light). It owns shared visual properties pushed to the RenderingServer — shadow casting, render layers, visibility range — and a per-instance color tint array. Subclasses create the actual visual instances and call _apply_visual_properties() to push these settings.
+	</description>
+	<members>
+		<member name="cast_shadow" type="int" setter="set_cast_shadow" getter="get_cast_shadow" enum="MultiNodeVisual3D.ShadowCastingSetting" default="1">
+			Controls shadow casting for all instances rendered by this node. Off = no shadows. On = standard shadows. Double-Sided = shadows from both sides of faces. Shadows Only = invisible but still casts shadows.
+		</member>
+		<member name="render_layers" type="int" setter="set_render_layers" getter="get_render_layers" default="1">
+			The render layer bitmask for all instances on this node. Only cameras with matching cull_mask bits will see these instances. Use to separate visual layers (e.g., minimap, main view).
+		</member>
+		<member name="visibility_range_begin" type="float" setter="set_visibility_range_begin" getter="get_visibility_range_begin" default="0.0">
+			Minimum distance from the camera at which instances become visible. Set to 0 to show at all close distances. Use with visibility_range_end for LOD-style distance culling.
+		</member>
+		<member name="visibility_range_end" type="float" setter="set_visibility_range_end" getter="get_visibility_range_end" default="0.0">
+			Maximum distance from the camera at which instances are visible. Set to 0 to disable distance culling. Instances farther than this are hidden.
+		</member>
+		<member name="tint" type="Color" setter="set_tint" getter="get_tint" default="Color(1, 1, 1, 1)">
+			Color filter applied to all instances on this node. White means no effect. Multiplied with per-instance colors to produce the final color. Useful for global effects like damage flash or team coloring.
+		</member>
+	</members>
+	<methods>
+		<method name="set_instance_color">
+			<return type="void" />
+			<param index="0" name="index" type="int" />
+			<param index="1" name="color" type="Color" />
+			<description>
+				Set the color for a single instance. Multiplied by the node tint to produce the final color. White means the instance uses only the node tint.
+			</description>
+		</method>
+		<method name="get_instance_color">
+			<return type="Color" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Get the raw per-instance color (before tint multiplication).
+			</description>
+		</method>
+		<method name="set_all_colors">
+			<return type="void" />
+			<param index="0" name="colors" type="PackedColorArray" />
+			<description>
+				Replace all per-instance colors at once. Triggers a bulk update to the rendering backend.
+			</description>
+		</method>
+		<method name="resize_colors">
+			<return type="void" />
+			<param index="0" name="count" type="int" />
+			<description>
+				Resize the per-instance color array to match the given count. New entries are filled with white (Color(1, 1, 1, 1)). Typically called internally when the instance count changes.
+			</description>
+		</method>
+	</methods>
+	<constants>
+		<constant name="SHADOW_CASTING_OFF" value="0" enum="ShadowCastingSetting">
+			No shadow casting.
+		</constant>
+		<constant name="SHADOW_CASTING_ON" value="1" enum="ShadowCastingSetting">
+			Standard shadow casting.
+		</constant>
+		<constant name="SHADOW_CASTING_DOUBLE_SIDED" value="2" enum="ShadowCastingSetting">
+			Cast shadows from both sides of faces.
+		</constant>
+		<constant name="SHADOW_CASTING_SHADOWS_ONLY" value="3" enum="ShadowCastingSetting">
+			Invisible but still casts shadows.
+		</constant>
+	</constants>
+</class>

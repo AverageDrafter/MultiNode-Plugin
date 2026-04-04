@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="MultiNodeParticle" inherits="MultiNodeVisual3D" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		GPU particle emitters for each instance, sharing a common material and mesh.
+	</brief_description>
+	<description>
+		MultiNodeParticle creates a GPUParticles3D child node for each active instance in the parent MultiNode. All emitters share the same process material and draw mesh. Each instance can be individually toggled on or off. Inherits cast_shadow and render_layers from MultiNodeVisual3D. Keep instance counts reasonable since each emitter has GPU overhead.
+	</description>
+	<members>
+		<member name="process_material" type="Material" setter="set_process_material" getter="get_process_material">
+			The particle process material (ParticleProcessMaterial or ShaderMaterial) that controls how particles behave — velocity, gravity, color curves, etc. Shared by all instance emitters.
+		</member>
+		<member name="draw_mesh" type="Mesh" setter="set_draw_mesh" getter="get_draw_mesh">
+			The mesh used to render each particle. If not set, particles use the default quad. Shared by all instance emitters.
+		</member>
+		<member name="amount" type="int" setter="set_amount" getter="get_amount" default="16">
+			Number of particles per emitter. Each instance gets this many particles. Total particle count = active instances * amount.
+		</member>
+		<member name="lifetime" type="float" setter="set_lifetime" getter="get_lifetime" default="1.0">
+			How long each particle lives in seconds before being recycled. Shared across all emitters.
+		</member>
+		<member name="emitting" type="bool" setter="set_emitting" getter="get_emitting" default="true">
+			Global emitting toggle. When disabled, all instance emitters stop spawning new particles. Existing particles continue until their lifetime expires.
+		</member>
+	</members>
+	<methods>
+		<method name="set_instance_emitting">
+			<return type="void" />
+			<param index="0" name="index" type="int" />
+			<param index="1" name="emitting" type="bool" />
+			<description>
+				Toggle particle emission for a single instance. The global emitting property must also be true for particles to spawn.
+			</description>
+		</method>
+		<method name="get_instance_emitting">
+			<return type="bool" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Check whether a specific instance's emitter is enabled.
+			</description>
+		</method>
+	</methods>
+</class>

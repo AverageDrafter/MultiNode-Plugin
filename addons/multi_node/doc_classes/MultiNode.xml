@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="MultiNode" inherits="Node3D" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		Compositional instancing parent that manages a shared list of instance transforms and data.
+	</brief_description>
+	<description>
+		MultiNode is the root of a compositional instancing system. It owns the master instance list — transforms, dirty flags, and per-instance data — shared by all child nodes. Add MultiNodeSub-derived children (Mesh, Collider, Audio, etc.) to define what each instance is and does. One MultiNode with sub-nodes replaces thousands of individual scene nodes.
+	</description>
+	<signals>
+		<signal name="instances_changed">
+			<description>
+				Emitted when the instance list changes — count, transforms, or data. All child sub-nodes listen to this signal to stay in sync.
+			</description>
+		</signal>
+	</signals>
+	<members>
+		<member name="use_transforms" type="bool" setter="set_use_transforms" getter="get_use_transforms" default="true">
+			When enabled, the parent stores a Transform3D per instance. Disable to save memory when you only need data arrays and compute shaders without spatial positioning. Sub-nodes that require transforms (MultiNode3D and below) will not function when disabled.
+		</member>
+		<member name="instance_count" type="int" setter="set_instance_count" getter="get_instance_count" default="0">
+			The current number of instances. Set this directly to resize the instance list. Triggers a full sync to all child sub-nodes. Not exposed in the inspector — use add_instance() and remove_instance() from scripts.
+		</member>
+		<member name="instance_limit" type="int" setter="set_instance_limit" getter="get_instance_limit" default="0">
+			Maximum number of instances allowed. Set to 0 for unlimited. add_instance() returns -1 when the limit is reached. If the current count exceeds a newly set limit, instances are trimmed.
+		</member>
+		<member name="data_stride" type="int" setter="set_data_stride" getter="get_data_stride" default="4">
+			Number of floats stored per instance in the parent-level data array. Use for shared game state accessible from all sub-nodes and GDScript. Minimum 1, maximum 64.
+		</member>
+		<member name="sub_data_stride" type="int" setter="set_sub_data_stride" getter="get_sub_data_stride" default="4">
+			Number of floats per instance in each sub-node's private data array. Must be a multiple of 4 for GPU alignment (automatically rounded up). Controls the stride for all sub-node data arrays and compute shader binding 2.
+		</member>
+	</members>
+	<methods>
+		<method name="add_instance">
+			<return type="int" />
+			<param index="0" name="transform" type="Transform3D" default="Transform3D()" />
+			<description>
+				Add a new instance with the given transform. Returns the new instance index, or -1 if the instance_limit has been reached.
+			</description>
+		</method>
+		<method name="remove_instance">
+			<return type="void" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Remove the instance at the given index. Uses swap-and-pop internally — the last instance moves into the removed slot, so indices may change.
+			</description>
+		</method>
+		<method name="clear_instances">
+			<return type="void" />
+			<description>
+				Remove all instances. Resets the count to zero and frees all internal buffers.
+			</description>
+		</method>
+		<method name="set_instance_transform">
+			<return type="void" />
+			<param index="0" name="index" type="int" />
+			<param index="1" name="transform" type="Transform3D" />
+			<description>
+				Set the transform for a single instance. Marks it dirty and notifies children at end of frame (or at end_batch if batching).
+			</description>
+		</method>
+		<method name="get_instance_transform">
+			<return type="Transform3D" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Get the current transform for an instance.
+			</description>
+		</method>
+		<method name="set_all_transforms">
+			<return type="void" />
+			<param index="0" name="transforms" type="Array" />
+			<description>
+				Replace all instance transforms at once. Resizes the instance count to match the array size.
+			</description>
+		</method>
+		<method name="set_positions">
+			<return type="void" />
+			<param index="0" name="positions" type="PackedVector3Array" />
+			<description>
+				Convenience method that sets identity-basis transforms from an array of positions. Resizes the instance count to match.
+			</description>
+		</method>
+		<method name="get_transform_buffer">
+			<return type="Array" />
+			<description>
+				Returns all instance transforms as an array. Useful for serialization or bulk reads.
+			</description>
+		</method>
+		<method name="mark_dirty">
+			<return type="void" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Manually mark a single instance as dirty. Children will update it on next sync. Normally called automatically by set_instance_transform.
+			</description>
+		</method>
+		<method name="mark_all_dirty">
+			<return type="void" />
+			<description>
+				Mark all instances as dirty. Forces a full re-sync of all children on the next signal.
+			</description>
+		</method>
+		<method name="is_dirty">
+			<return type="bool" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Check whether an instance is marked dirty since the last sync.
+			</description>
+		</method>
+		<method name="get_dirty_count">
+			<return type="int" />
+			<description>
+				Returns the number of currently dirty instances. Children use this to decide between sparse and full updates.
+			</description>
+		</method>
+		<method name="begin_batch">
+			<return type="void" />
+			<description>
+				Enter batch mode. Transform changes are accumulated silently without emitting signals. Call end_batch() when done to emit a single instances_changed signal.
+			</description>
+		</method>
+		<method name="end_batch">
+			<return type="void" />
+			<description>
+				Exit batch mode and emit a single instances_changed signal for all accumulated changes.
+			</description>
+		</method>
+		<method name="notify_transforms_changed">
+			<return type="void" />
+			<description>
+				Manually trigger an instances_changed signal. Use when you modify transforms via direct buffer access from C++ and need children to update.
+			</description>
+		</method>
+		<method name="set_instance_data">
+			<return type="void" />
+			<param index="0" name="index" type="int" />
+			<param index="1" name="channel" type="int" />
+			<param index="2" name="value" type="float" />
+			<description>
+				Set a single float in the parent-level per-instance data array. Channel is the offset within the instance's data (0 to data_stride-1).
+			</description>
+		</method>
+		<method name="get_instance_data">
+			<return type="float" />
+			<param index="0" name="index" type="int" />
+			<param index="1" name="channel" type="int" />
+			<description>
+				Read a single float from the parent-level per-instance data array.
+			</description>
+		</method>
+		<method name="set_instance_data_vec">
+			<return type="void" />
+			<param index="0" name="index" type="int" />
+			<param index="1" name="values" type="PackedFloat32Array" />
+			<description>
+				Set the entire data vector for a single instance. The array is clamped to data_stride length.
+			</description>
+		</method>
+		<method name="get_instance_data_vec">
+			<return type="PackedFloat32Array" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Get the full data vector for a single instance as a PackedFloat32Array.
+			</description>
+		</method>
+	</methods>
+</class>

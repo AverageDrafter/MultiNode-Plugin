@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="MultiNode3D" inherits="MultiNodeSub" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		Base class for spatial MultiNode children. Adds a transform offset applied to each instance.
+	</brief_description>
+	<description>
+		MultiNode3D extends MultiNodeSub with spatial awareness. It provides a configurable transform offset (position, rotation, scale) that is applied to every instance, and a flag to control whether instance rotation/scale is inherited. All concrete spatial sub-nodes (Mesh, Collider, Audio, etc.) inherit from this class. Requires the parent MultiNode to have use_transforms enabled.
+	</description>
+	<members>
+		<member name="offset_position" type="Vector3" setter="set_offset_position" getter="get_offset_position" default="Vector3(0, 0, 0)">
+			Position offset applied to every instance, in local space. Use this to shift child geometry relative to the instance origin — for example, raising a label above a character's head.
+		</member>
+		<member name="offset_rotation" type="Vector3" setter="set_offset_rotation" getter="get_offset_rotation" default="Vector3(0, 0, 0)">
+			Rotation offset applied to every instance, in radians (displayed as degrees in the inspector). Combines with offset_position and offset_scale to form the transform offset.
+		</member>
+		<member name="offset_scale" type="Vector3" setter="set_offset_scale" getter="get_offset_scale" default="Vector3(1, 1, 1)">
+			Scale offset applied to every instance. Multiplied into the transform offset along with position and rotation.
+		</member>
+		<member name="use_instance_basis" type="bool" setter="set_use_instance_basis" getter="get_use_instance_basis" default="true">
+			When enabled, each instance inherits the rotation and scale from its parent transform. When disabled, only the position is used — useful for labels, lights, and other elements that should stay upright regardless of instance orientation.
+		</member>
+	</members>
+	<methods>
+		<method name="get_transform_offset">
+			<return type="Transform3D" />
+			<description>
+				Returns the combined transform offset built from offset_position, offset_rotation, and offset_scale.
+			</description>
+		</method>
+		<method name="compute_instance_transform">
+			<return type="Transform3D" />
+			<param index="0" name="instance_xform" type="Transform3D" />
+			<description>
+				Compute the final transform for an instance by applying the offset and use_instance_basis flag to the given instance transform. Used internally by all spatial sub-nodes.
+			</description>
+		</method>
+	</methods>
+</class>

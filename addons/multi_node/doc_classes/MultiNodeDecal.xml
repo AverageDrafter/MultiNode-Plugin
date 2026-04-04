@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="MultiNodeDecal" inherits="MultiNodeVisual3D" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		Projected decals for each instance, using RenderingServer decals.
+	</brief_description>
+	<description>
+		MultiNodeDecal creates a RenderingServer decal for each active instance in the parent MultiNode. Decals project a texture onto nearby surfaces. Use cases include shadow blobs, tire marks, damage indicators, selection rings, and ground markers. Per-instance color modulation is supported via the tint system.
+	</description>
+	<members>
+		<member name="texture_albedo" type="Texture2D" setter="set_texture_albedo" getter="get_texture_albedo">
+			The texture projected by the decal onto surfaces. All instances share this texture.
+		</member>
+		<member name="decal_size" type="Vector3" setter="set_decal_size" getter="get_decal_size" default="Vector3(2, 2, 2)">
+			The size of the decal projection volume in meters (width, height, depth). The decal projects along the Y axis within this box.
+		</member>
+		<member name="albedo_mix" type="float" setter="set_albedo_mix" getter="get_albedo_mix" default="1.0">
+			How much the decal's albedo texture blends with the underlying surface. 0.0 = no effect, 1.0 = full decal color.
+		</member>
+		<member name="normal_fade" type="float" setter="set_normal_fade" getter="get_normal_fade" default="0.3">
+			Controls how the decal fades based on the angle between the decal projection and the surface normal. Higher values make the decal fade more on angled surfaces.
+		</member>
+		<member name="upper_fade" type="float" setter="set_upper_fade" getter="get_upper_fade" default="0.3">
+			Controls the fade-out at the upper edge of the decal projection volume. Higher values produce a softer fade.
+		</member>
+		<member name="lower_fade" type="float" setter="set_lower_fade" getter="get_lower_fade" default="0.3">
+			Controls the fade-out at the lower edge of the decal projection volume. Higher values produce a softer fade.
+		</member>
+	</members>
+</class>

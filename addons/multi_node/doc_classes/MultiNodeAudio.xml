@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="MultiNodeAudio" inherits="MultiNode3D" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		Software-mixed spatial audio for all instances through a single audio channel.
+	</brief_description>
+	<description>
+		MultiNodeAudio decodes a source AudioStreamWAV to raw PCM, then software-mixes all playing instances into a single AudioStreamGenerator output with per-instance distance attenuation and stereo panning. No voice limit — thousands of simultaneous sources through one audio channel. Requires AudioStreamWAV format (16-bit or 8-bit, import with Compress Mode set to Disabled).
+	</description>
+	<members>
+		<member name="stream" type="AudioStream" setter="set_stream" getter="get_stream">
+			The audio stream to play. Must be an AudioStreamWAV (16-bit or 8-bit PCM). Other formats are not supported by the software mixer. Import your audio as WAV with Compress Mode set to Disabled.
+		</member>
+		<member name="volume_db" type="float" setter="set_volume_db" getter="get_volume_db" default="0.0">
+			Base volume for all instances in decibels. 0 dB = full volume. Negative values reduce volume. Combined with per-instance volume and distance attenuation.
+		</member>
+		<member name="max_distance" type="float" setter="set_max_distance" getter="get_max_distance" default="50.0">
+			Maximum distance in meters at which an instance can be heard. Instances beyond this distance are skipped entirely during the mix loop, saving CPU.
+		</member>
+		<member name="reference_distance" type="float" setter="set_reference_distance" getter="get_reference_distance" default="1.0">
+			Distance in meters at which the sound is at full volume. Closer than this distance, volume does not increase further. Attenuation follows inverse distance from this point outward.
+		</member>
+		<member name="bus" type="StringName" setter="set_bus" getter="get_bus" default="&amp;Master">
+			The audio bus that the mixed output is routed to. Change to send all instance audio through a specific bus for effects processing.
+		</member>
+		<member name="loop" type="bool" setter="set_loop" getter="get_loop" default="false">
+			When enabled, instances loop back to the start when playback reaches the end. A short crossfade is applied at the loop boundary to prevent clicks.
+		</member>
+		<member name="autoplay" type="bool" setter="set_autoplay" getter="get_autoplay" default="false">
+			Automatically start playing all instances when the scene loads and instances are created.
+		</member>
+		<member name="amplify_db" type="float" setter="set_amplify_db" getter="get_amplify_db" default="0.0">
+			Post-mix output amplification in decibels. Applied after all instance voices are mixed together. Use to boost the overall output level when many quiet sources are mixed. Output is soft-clipped to prevent hard clipping.
+		</member>
+		<member name="auto_pause" type="bool" setter="set_auto_pause" getter="get_auto_pause" default="true">
+			Skip the entire audio mix loop when no playing instances are within max_distance of the listener. Saves significant CPU when the player is far from all sound sources. Disable if you need silent instances to keep advancing their playback position.
+		</member>
+	</members>
+	<methods>
+		<method name="play_instance">
+			<return type="void" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Start playing audio for a single instance from the beginning. Does nothing if the instance is already playing.
+			</description>
+		</method>
+		<method name="stop_instance">
+			<return type="void" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Stop audio playback for a single instance.
+			</description>
+		</method>
+		<method name="play_all">
+			<return type="void" />
+			<description>
+				Start playing all active instances from the beginning.
+			</description>
+		</method>
+		<method name="stop_all">
+			<return type="void" />
+			<description>
+				Stop playback on all instances.
+			</description>
+		</method>
+		<method name="set_instance_playing">
+			<return type="void" />
+			<param index="0" name="index" type="int" />
+			<param index="1" name="playing" type="bool" />
+			<description>
+				Set the playing state for a single instance. Equivalent to calling play_instance or stop_instance.
+			</description>
+		</method>
+		<method name="get_instance_playing">
+			<return type="bool" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Check whether a specific instance is currently playing.
+			</description>
+		</method>
+		<method name="set_instance_volume">
+			<return type="void" />
+			<param index="0" name="index" type="int" />
+			<param index="1" name="db" type="float" />
+			<description>
+				Set the volume offset for a single instance in decibels. Stacks with the node's base volume_db and distance attenuation.
+			</description>
+		</method>
+		<method name="get_instance_volume">
+			<return type="float" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Get the per-instance volume offset in decibels.
+			</description>
+		</method>
+		<method name="set_instance_pitch">
+			<return type="void" />
+			<param index="0" name="index" type="int" />
+			<param index="1" name="scale" type="float" />
+			<description>
+				Set the pitch scale for a single instance. 1.0 = normal speed, 2.0 = double speed (one octave up), 0.5 = half speed (one octave down).
+			</description>
+		</method>
+		<method name="get_instance_pitch">
+			<return type="float" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Get the pitch scale for a specific instance.
+			</description>
+		</method>
+	</methods>
+</class>

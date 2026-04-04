@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="MultiNodeSub" inherits="Node3D" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		Base class for all MultiNode child nodes. Handles parent discovery, active filtering, per-instance data, and compute shaders.
+	</brief_description>
+	<description>
+		MultiNodeSub is the base for every child that attaches to a MultiNode parent. It manages which instances this node processes via two filtering layers (instance_every and instance_range) ANDed together, owns a per-instance float data array, and can optionally run a GLSL compute shader each frame. Must be a direct child of a MultiNode to function.
+
+Active filtering uses two layers combined with AND logic:
+- [b]instance_every[/b]: Coarse pattern filter (every Nth instance).
+- [b]instance_range[/b]: Excel-style range string for fine-grained inclusion/exclusion.
+
+An instance is active only if it passes both filters. For runtime overrides beyond these two layers, use [method set_instance_active] to directly manipulate the active array.
+	</description>
+	<members>
+		<member name="active_count" type="int" getter="get_active_count" default="0">
+			Read-only. The number of instances currently active on this node after applying all filters.
+		</member>
+		<member name="instance_every" type="int" setter="set_instance_every" getter="get_instance_every" default="1">
+			Controls which instances this node processes. 1 = all instances. 2 = every other instance (0, 2, 4...). 3 = every third (0, 3, 6...). Negative values select the complement: -2 processes the instances that +2 skips (1, 3, 5...). 0 = disabled (no instances processed). Use paired positive/negative values on two nodes to split work across LOD levels.
+		</member>
+		<member name="instance_range" type="String" setter="set_instance_range" getter="get_instance_range" default="&quot;&quot;">
+			Excel-style range string for fine-grained instance filtering. Tokens are comma-separated and processed left-to-right. Examples:
+- [code]0:99[/code] — include indices 0 through 99
+- [code]1:10,15,20:30[/code] — include 1-10, 15, and 20-30
+- [code]-5[/code] — everything except index 5
+- [code]0:99,-50:59[/code] — indices 0-99 except 50-59
+- [code]1:10,-3,17:20,-18[/code] — 1-10 (minus 3), plus 17-20 (minus 18)
+Empty string means no restriction (all instances pass).
+		</member>
+		<member name="compute_code" type="String" setter="set_compute_code" getter="get_compute_code" default="&quot;&quot;">
+			GLSL compute shader source code. Runs once per instance per frame on a local RenderingDevice. The shader receives: binding 0 = transforms (3 x vec4 per instance, read/write), binding 1 = active flags (uint per instance, read), binding 2 = instance data (sub_data_stride floats per instance, read/write). Push constants: delta (float), time (float), count (uint), stride (uint).
+		</member>
+		<member name="compute_enabled" type="bool" setter="set_compute_enabled" getter="get_compute_enabled" default="false">
+			Enable or disable the compute shader dispatch. The shader compiles when this is enabled and compute_code is set. Disable to stop GPU dispatch without losing the shader code.
+		</member>
+	</members>
+	<methods>
+		<method name="set_instance_active">
+			<return type="void" />
+			<param index="0" name="index" type="int" />
+			<param index="1" name="active" type="bool" />
+			<description>
+				Directly set the active state of a single instance. Writes to the computed active array, bypassing the instance_every and instance_range filters. Note: the next call to set_instance_every or set_instance_range will recompute and overwrite this override.
+			</description>
+		</method>
+		<method name="is_instance_active">
+			<return type="bool" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Check whether a specific instance is active on this node (after all filters).
+			</description>
+		</method>
+		<method name="set_all_active">
+			<return type="void" />
+			<param index="0" name="active" type="bool" />
+			<description>
+				Set all instances to active or inactive at once. Directly writes to the active array, bypassing filters.
+			</description>
+		</method>
+		<method name="get_active_count">
+			<return type="int" />
+			<description>
+				Returns the number of currently active instances on this node.
+			</description>
+		</method>
+		<method name="get_multi_node_parent">
+			<return type="MultiNode" />
+			<description>
+				Returns the parent MultiNode, or null if this node is not a child of one.
+			</description>
+		</method>
+		<method name="get_data_stride">
+			<return type="int" />
+			<description>
+				Returns this node's per-instance data stride (floats per instance). Inherited from the parent MultiNode's sub_data_stride setting.
+			</description>
+		</method>
+		<method name="set_instance_data">
+			<return type="void" />
+			<param index="0" name="index" type="int" />
+			<param index="1" name="channel" type="int" />
+			<param index="2" name="value" type="float" />
+			<description>
+				Set a single float in this node's per-instance data array. Channel is the offset (0 to data_stride-1). This data is private to this sub-node — not shared with siblings.
+			</description>
+		</method>
+		<method name="get_instance_data">
+			<return type="float" />
+			<param index="0" name="index" type="int" />
+			<param index="1" name="channel" type="int" />
+			<description>
+				Read a single float from this node's per-instance data array.
+			</description>
+		</method>
+		<method name="set_instance_data_vec">
+			<return type="void" />
+			<param index="0" name="index" type="int" />
+			<param index="1" name="values" type="PackedFloat32Array" />
+			<description>
+				Set the entire data vector for a single instance on this node.
+			</description>
+		</method>
+		<method name="get_instance_data_vec">
+			<return type="PackedFloat32Array" />
+			<param index="0" name="index" type="int" />
+			<description>
+				Get the full data vector for a single instance on this node.
+			</description>
+		</method>
+	</methods>
+</class>
