@@ -121,7 +121,7 @@ A playable demo is included at `addons/multi_node/demo/demo_scene.tscn`. Open it
 Demo scene assets are included for demonstration purposes only:
 
 **Sprites**
-- Priest-Walk.png -- [Tiny RPG Character Asset Pack](https://axulart.itch.io/tiny-rpg-character-asset-pack) by AxulArt
+- Priest-Walk.png -- [Tiny RPG Character Asset Pack](https://zerie.itch.io/tiny-rpg-character-asset-pack) by Zerie
 
 **Sounds**
 - dragon-studio-new-notification-3-398649.wav -- [Dragon Studio](https://pixabay.com/users/dragon-studio/) via Pixabay
