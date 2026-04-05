@@ -1,145 +1,259 @@
-# MultiNode for Godot 4.6
+# MultiNode — Compositional Instancing for Godot 4.6
 
-**Compositional instancing system for Godot 4.6.** One parent node, 15 specialized child types, thousands of instances from one collection of nodes. Mesh, collision, animation, audio, particles, lights, labels, decals, raycasts, and areas -- compose what you need, skip what you don't.
+**One node. Thousands of instances. Full behavior.**
 
-**Version:** 0.2.0-alpha (Windows x86_64)
+MultiNode is an open-source addon that brings real instancing to Godot — not just rendering, but collision, animation, audio, particles, raycasts, labels, lights, decals, and more. Drop in the child nodes you need, and every instance gets full behavior without thousands of individual scene nodes.
 
-## Links
+\---
 
-- [API Reference](https://averagedrafter.github.io/MultiNode-Plugin/docs/MultiNodeDocs.html)
-- [Source & Development](https://github.com/AverageDrafter/MultiNode-Plugin-Working)
-- [Issues & Feedback](https://github.com/AverageDrafter/MultiNode-Plugin/issues)
+## Introducing MultiNode
 
-## Installation
+### What Is an Instance?
 
-1. Download or clone this repository
-2. Copy the `addons/multi_node/` folder into your Godot project's `addons/` directory
-3. Open your project in Godot 4.6+
-4. Go to **Project > Project Settings > Plugins** and enable **MultiNode**
-5. Done -- MultiNode types are now available in the "Add Node" dialog
+In game engines, an *instance* is a copy of an object. It shares the same mesh, material, and shape — but has its own position in the world. A forest of 10,000 trees? That's 10,000 instances of one tree.
 
-Your project structure should look like:
+Rendering engines handle this well. Godot's **MultiMesh** can render 10,000 identical meshes in a single draw call. Fast and cheap.
+
+But a rendered mesh is just a picture. It can't collide with the player. It doesn't make sound. It can't be clicked, animated, or detected by game logic. The moment you need any of that, you're back to creating individual nodes — one `MeshInstance3D`, one `StaticBody3D`, one `CollisionShape3D`, one `AudioStreamPlayer3D`... *per instance*. At 10,000 instances, that's 40,000+ nodes. Your scene tree explodes, your editor crawls, and your frame rate dies.
+
+**MultiMesh gives you fast pictures. MultiNode gives you fast everything.**
+
+### How It Works
+
+MultiNode is a parent node that owns a list of instance transforms. You add child nodes for the behaviors you need:
+
 ```
-your_project/
+MultiNode                  ← owns 5,000 instance transforms
+  ├── MultiNodeMesh          ← renders all 5,000 (1 GPU draw call)
+  ├── MultiNodeCollider      ← 5,000 physics bodies (via PhysicsServer3D)
+  ├── MultiNodeAudio         ← spatial audio for all 5,000
+  └── MultiNodeAnimator      ← per-instance animation playback
+```
+
+**Composition over inheritance.** Each child handles one concern. Need collision? Add a `MultiNodeCollider`. Need sound? Add a `MultiNodeAudio`. Don't need particles? Don't add one. Every child operates on the same shared instance list. No duplication, no sync issues.
+
+Each child can also filter *which* instances it affects. `instance\_every = 2` means every other instance. `instance\_range = "0:99,-50:59"` means instances 0–99 except 50–59. Use different meshes, shapes, or behaviors on subsets of instances.
+
+\---
+
+## Why This Matters: The Instancing Gap
+
+### How Godot's MultiMesh Works (and Its Limits)
+
+`MultiMeshInstance3D` stores a flat buffer of transforms and renders them in one draw call. That's all it does.
+
+What MultiMesh **cannot** do:
+
+* No per-instance collision or physics bodies
+* No per-instance raycasting or click detection
+* No per-instance audio
+* No per-instance animation playback
+* No per-instance particles, lights, labels, decals, or areas
+* No per-instance game logic
+
+The community has been asking for these capabilities:
+
+* [**Add collision detection / raycast to MultiMeshInstance3D**](https://github.com/godotengine/godot-proposals/issues/10828) — *"Want the player to be able to click on a spot in that scene and know where they clicked"*
+* [**Allow specifying more custom instance data for MultiMesh**](https://github.com/godotengine/godot-proposals/issues/8666)
+* [**Make placing MultiMesh instances manually easier**](https://github.com/godotengine/godot-proposals/issues/5352)
+
+The common workaround — creating thousands of individual nodes — defeats the purpose of instancing entirely.
+
+### How Other Engines Handle This
+
+**Unity** offers two paths: **GPU Instancing** (`DrawMeshInstanced`) for fast rendering with zero per-instance behavior, or **DOTS/ECS** for full entity simulation — but DOTS requires rewriting your entire game in a different programming paradigm. Most developers describe the transition as "rewriting your game from scratch." There is no middle ground.
+
+**Unreal Engine** has **Hierarchical Instanced Static Mesh (HISM)**, which can optionally enable per-instance collision — but each body is a separate PhysX/Chaos shape, creating a significant CPU bottleneck at high counts. Collision is all-or-nothing per component. No per-instance animation, audio, or gameplay logic. Unreal's **Mass Entity Framework** is powerful but poorly documented and requires deep C++ knowledge.
+
+**Every major engine** treats instancing as a rendering optimization first, with per-instance behavior as an afterthought requiring significant custom engineering.
+
+### MultiNode Closes the Gap
+
+|Capability|Unity GPU|Unity DOTS|Unreal HISM|Godot MultiMesh|**MultiNode**|
+|-|-|-|-|-|-|
+|GPU-instanced rendering|Yes|Yes|Yes|Yes|**Yes**|
+|Per-instance collision|No|Yes (rewrite)|Yes (expensive)|No|**Yes**|
+|Per-instance animation|No|Partial|No|No|**Yes**|
+|Per-instance audio|No|No|No|No|**Yes**|
+|Per-instance particles|No|No|No|No|**Yes**|
+|Per-instance raycasting|No|Manual|No|No|**Yes**|
+|Per-instance lights|No|No|No|No|**Yes**|
+|Per-instance labels|No|No|No|No|**Yes**|
+|Compute shaders per instance|Manual|Burst|Niagara only|No|**Yes**|
+|Compositional (mix \& match)|No|Somewhat|No|No|**Yes**|
+|Setup complexity|Low|Very High|Low-Med|Low|**Low**|
+
+MultiNode doesn't just close the instancing gap in Godot. It provides per-instance capabilities that no other engine offers in a single composable system. Unreal HISM comes closest for collision but lacks everything else. Unity DOTS is powerful but demands a complete architectural rewrite. MultiNode gives you full-stack instancing by adding child nodes — the same workflow you already know in Godot.
+
+\---
+
+## Performance
+
+Tested with 1,500 rigid-body cubes with self-collision (Jolt physics):
+
+|Metric|MultiNode|Standard Godot|
+|-|-|-|
+|Scene tree nodes|\~20|\~4,500|
+|Peak FPS (cascade)|\~90|\~50|
+|Settled FPS|\~90|\~90|
+|VRAM|Same|Same|
+
+The advantage shows during chaos — when everything is moving and colliding simultaneously. Batched PhysicsServer calls and sleep-optimized readback keep the frame rate stable where individual node overhead collapses.
+
+\---
+
+## Node Reference
+
+### MultiNode (Parent)
+
+The root container. Owns the master list of instance transforms and per-instance data arrays. All child nodes read from this shared list. There is no Godot equivalent — you would manage transforms manually and synchronize every system yourself.
+
+**Use cases:** Any scene with many copies of the same object — forests, crowds, projectiles, inventory items, building pieces, particle-like gameplay objects.
+
+### MultiNodeInstancer
+
+Generates instance transforms. Three modes: **Array** (grid layout), **Mesh Fill** (scatter across a mesh surface/volume), and **Manual** (click-to-place in the editor). Godot's MultiMesh has a basic "Populate" button — this is far more flexible.
+
+**Use cases:** Procedural foliage, scattered rocks, hand-placed key instances, filling a mesh volume.
+
+### MultiNodeMesh
+
+GPU-instanced rendering via Godot's MultiMesh internally. Supports per-instance color tinting, cast shadows, and render layers. This is the same fast rendering path as `MultiMeshInstance3D`, integrated with the shared instance list.
+
+**Use cases:** Rendering thousands of trees, rocks, buildings, projectiles, or any repeated visual.
+
+### MultiNodeCollider
+
+Creates one physics body per instance via `PhysicsServer3D` directly — no scene tree nodes. Supports **Static**, **Kinematic**, and **Rigid** body types with per-instance collision shapes. Handles velocity handoff when switching body types at runtime.
+
+In Godot, the alternative is thousands of individual `StaticBody3D`/`RigidBody3D` nodes. In Unreal, HISM per-instance collision exists but is expensive and all-or-nothing. Unity has no built-in equivalent.
+
+**Use cases:** Destructible walls (static → rigid on hit), physics foliage, kinematic platforms, large-scale rigid body simulations.
+
+### MultiNodeArea
+
+Per-instance detection zones via `PhysicsServer3D`. Detects when other bodies enter/exit each instance's area and reports which instance was entered. The alternative is thousands of `Area3D` nodes.
+
+**Use cases:** Proximity triggers, pickup zones, damage fields, stealth detection ranges.
+
+### MultiNodeRaycast
+
+Casts a ray from each instance every physics frame. Reports hits with instance index, position, normal, and collider. The alternative is thousands of `RayCast3D` nodes or manual `PhysicsDirectSpaceState3D` queries.
+
+**Use cases:** Ground detection for hovering objects, line-of-sight for AI, projectile scanning, shadow placement.
+
+### MultiNodeAnimator
+
+Per-instance animation using the **MultiAnimation** key-based resource. Each instance has independent key state, speed, and progress. Supports sequential (linear) and state machine (circular) topologies. Method calls fire on key arrival with the instance index. Sync modes allow lockstep or staggered playback.
+
+No engine provides per-instance animation at this scale without an ECS rewrite.
+
+**Use cases:** Bobbing platforms with staggered timing, crowd animations, blinking lights, per-unit state machines.
+
+### MultiNodeAudio
+
+Software-mixed spatial audio for all instances through a single audio bus. Attenuates and pans each instance's sound based on distance and direction to the listener. Supports looping, volume, amplification, and distance falloff.
+
+No engine provides per-instance spatial audio out of the box.
+
+**Use cases:** Ambient sounds (humming machines, rustling trees), notification sounds, environmental audio.
+
+### MultiNodeParticle
+
+Spawns a `GPUParticles3D` emitter at each instance's position. Supports process materials, draw meshes, and per-instance emission control.
+
+**Use cases:** Smoke from chimneys, sparks from damaged machines, fire on torches, vehicle exhaust.
+
+### MultiNodeLight
+
+Omni or spot light at each instance's position via `RenderingServer`. Configurable color, energy, range, and shadow enable.
+
+**Use cases:** Streetlights, torch glow, indicator lights, dynamic lighting for moving objects.
+
+### MultiNodeLabel
+
+Billboard text labels at each instance via atlas rendering + MultiMesh. Per-instance text, font size, outline, and color.
+
+**Use cases:** Floating names, health bars, distance markers, debug info per instance.
+
+### MultiNodeSprite
+
+Billboard sprite sheets at each instance. Animation frames, per-instance frame selection, and configurable pixel size.
+
+**Use cases:** 2D characters in 3D world, animated icons, retro-style NPCs, billboard vegetation.
+
+### MultiNodeDecal
+
+Projected decals at each instance's position via `RenderingServer`.
+
+**Use cases:** Blood splatters, tire marks, scorch marks, footprints, terrain painting.
+
+### MultiNodeSub (Base Class)
+
+Base for all child nodes. Provides:
+
+* **Active filtering** — `instance\_every` and `instance\_range` to control which instances each child processes
+* **Per-instance data arrays** — flat float buffers accessible from GDScript, C++, and GPU shaders
+* **Compute shaders** — set `compute\_code` to GLSL, enable, and it runs on the GPU every frame with instance transforms, active flags, and data as bindings
+
+\---
+
+## Getting Started
+
+### Installation
+
+Drop the addon into your Godot 4.6 project:
+
+```
+your\_project/
   addons/
-    multi_node/
-      bin/
-      doc_classes/
-      icons/
-      plugin.cfg
-      plugin.gd
-      multi_node.gdextension
-      ...
+    multi\_node/     ← copy this folder
   project.godot
 ```
 
-## Quick Start
+Enable the plugin: **Project → Project Settings → Plugins → MultiNode → Enable**
 
-1. Add a **MultiNode** as the parent
-2. Add child nodes for the behaviors you need:
-   - **MultiNodeMesh** -- GPU-instanced rendering
-   - **MultiNodeCollider** -- physics bodies (static, kinematic, or rigid)
-   - **MultiNodeLight** -- per-instance dynamic lights
-   - ...any combination of the 15 sub-node types
-3. Add instances via code (`add_instance()`) or use **MultiNodeInstancer** for array/scatter generation
-4. Each child operates on the shared instance list -- add a mesh and a collider, and every instance gets both
+### Quick Start
 
-## Node Types
+```gdscript
+extends MultiNode
 
-### Parent
-| Node | Purpose |
-|------|---------|
-| **MultiNode** | Parent that owns instance count, transforms, and shared data |
-
-### Generator
-| Node | Purpose |
-|------|---------|
-| **MultiNodeInstancer** | Array, mesh-fill, and manual instance generation |
-
-### Rendering
-| Node | Purpose |
-|------|---------|
-| **MultiNodeMesh** | GPU-instanced mesh rendering via MultiMesh |
-| **MultiNodeSprite** | Billboard sprite sheets with per-instance animation frames |
-| **MultiNodeLabel** | Billboard text labels via shared atlas |
-| **MultiNodeParticle** | GPU particle emitters per instance |
-| **MultiNodeDecal** | Projected decals per instance |
-| **MultiNodeLight** | Omni or spot lights per instance |
-
-### Physics
-| Node | Purpose |
-|------|---------|
-| **MultiNodeCollider** | Static, kinematic, or rigid bodies via PhysicsServer3D |
-| **MultiNodeArea** | Detection zones via PhysicsServer3D |
-| **MultiNodeRaycast** | Per-instance raycasting with hit results |
-
-### Other
-| Node | Purpose |
-|------|---------|
-| **MultiNodeAnimator** | Shared animation with per-instance playback and sync |
-| **MultiNodeAudio** | Software-mixed spatial audio for all instances |
-
-### Base Classes (not used directly)
-| Node | Purpose |
-|------|---------|
-| **MultiNodeSub** | Base for all children -- active filtering, compute shaders, per-instance data |
-| **MultiNode3D** | Adds transform offset to spatial children |
-| **MultiNodeVisual3D** | Adds shadow/render layer/tint to visual children |
-
-## Active Filtering
-
-Every sub-node has two filtering layers:
-
-- **instance_every** (int) -- pattern filter. `1` = all, `N` = every Nth, `-N` = complement
-- **instance_range** (String) -- Excel-style ranges. `"0:99,-50:59,150"` includes 0-99 except 50-59, plus 150
-
-This lets different sub-nodes operate on different subsets of instances. Give one mesh to every 3rd instance, another to the rest. Light only the first 100. Collide all of them.
-
-## Compute Shaders
-
-Any sub-node can run a GLSL compute shader on its instances. Set `compute_code` to GLSL and `compute_enabled = true`. The shader receives transforms, active flags, and per-instance data via storage buffers.
-
-## Building from Source
-
-Precompiled Windows binaries are included. To build from source (or for Linux/macOS):
-
-```bash
-cd addons/multi_node
-git clone https://github.com/godotengine/godot-cpp.git -b 4.6 --depth 1
-pip install scons
-scons target=template_debug    # Debug build
-scons target=template_release  # Release build
+func \_ready() -> void:
+    begin\_batch()
+    for i: int in range(500):
+        add\_instance(Transform3D(Basis(), Vector3(randf() \* 100, 20, randf() \* 100)))
+    end\_batch()
 ```
 
-Requires: Python 3, SCons, C++ compiler (MSVC or MinGW-w64 on Windows).
+Add child nodes in the editor for rendering, physics, audio — whatever you need.
 
-## Requirements
+### Building from Source
 
-- Godot 4.6+ (standard or .NET build)
-- Windows x86_64 (precompiled), or build from source for other platforms
+```bash
+cd addons/multi\_node
+git clone https://github.com/godotengine/godot-cpp.git -b master --depth 1
+pip install scons
+scons target=template\_debug    # Debug build
+scons target=template\_release  # Release build
+```
 
-## Demo Scene
+Requires: Godot 4.6, Python 3, SCons, C++ compiler (MSVC or MinGW-w64).
 
-A playable demo is included at `addons/multi_node/demo/demo_scene.tscn`. Open it, hit Play, and use the bottom control panel to toggle sub-nodes on and off. Right-click to fly the camera (WASD + QE + mouse).
+\---
 
-## Asset Credits
+## Status
 
-Demo scene assets are included for demonstration purposes only:
+**Open Alpha (v0.2.0)** — 16 node types + 1 resource, all working. The API may evolve based on community feedback.
 
-**Sprites**
-- Priest-Walk.png -- [Tiny RPG Character Asset Pack](https://zerie.itch.io/tiny-rpg-character-asset-pack) by Zerie
-
-**Sounds**
-- dragon-studio-new-notification-3-398649.wav -- [Dragon Studio](https://pixabay.com/users/dragon-studio/) via Pixabay
-- freesound_community-low-ambient-hum-70327.wav -- [Freesound Community](https://freesound.org/) (ID 70327)
-- van_wiese-bass-wiggle-297877.wav -- [Van Wiese](https://pixabay.com/users/van_wiese/) via Pixabay
+* [Report issues](https://github.com/AverageDrafter/MultiNode-Plugin-Working/issues)
+* [Discord community](https://discord.gg/tcYjECNYt7)
 
 ## License
 
-MIT -- see [LICENSE](LICENSE)
+MIT — Full source code included. Study it, modify it, ship it.
 
 ## Links
 
-- [API Reference](https://averagedrafter.github.io/MultiNode-Plugin/docs/MultiNodeDocs.html)
-- [Source & Development](https://github.com/AverageDrafter/MultiNode-Plugin-Working)
-- [Issues & Feedback](https://github.com/AverageDrafter/MultiNode-Plugin/issues)
+* **Source:** [AverageDrafter/MultiNode-Plugin-Working](https://github.com/AverageDrafter/MultiNode-Plugin-Working)
+* **Distribution:** [AverageDrafter/MultiNode-Plugin](https://github.com/AverageDrafter/MultiNode-Plugin)
+
