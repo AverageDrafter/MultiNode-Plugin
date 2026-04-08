@@ -3,7 +3,16 @@
 
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/classes/physics_server3d.hpp>
+#include <godot_cpp/classes/rendering_server.hpp>
 #include <godot_cpp/classes/world3d.hpp>
+#include <godot_cpp/classes/scene_tree.hpp>
+#include <godot_cpp/classes/engine.hpp>
+#include <godot_cpp/classes/box_shape3d.hpp>
+#include <godot_cpp/classes/sphere_shape3d.hpp>
+#include <godot_cpp/classes/capsule_shape3d.hpp>
+#include <godot_cpp/classes/cylinder_shape3d.hpp>
+#include <godot_cpp/classes/standard_material3d.hpp>
+#include <godot_cpp/classes/mesh.hpp>
 
 using namespace godot;
 
@@ -69,6 +78,9 @@ void MultiNodeCollider::_notification(int p_what) {
 		case NOTIFICATION_TRANSFORM_CHANGED: {
 			_global_inv_dirty = true;
 		} break;
+		case NOTIFICATION_PROCESS: {
+			_debug_check_toggle();
+		} break;
 	}
 }
 
@@ -79,12 +91,19 @@ void MultiNodeCollider::_notification(int p_what) {
 void MultiNodeCollider::_on_sub_entered() {
 	set_notify_transform(true);
 	_global_inv_dirty = true;
+	_cached_has_offset = _has_offset;
+	if (_has_offset) {
+		_cached_offset_inv = _transform_offset.affine_inverse();
+	}
 	_rebuild();
 	set_physics_process(true);
+	set_process(true); // For debug wireframe toggle polling.
 }
 
 void MultiNodeCollider::_on_sub_exiting() {
 	set_physics_process(false);
+	set_process(false);
+	_debug_destroy_wireframes();
 	_clear_bodies();
 }
 
@@ -96,6 +115,11 @@ void MultiNodeCollider::_on_parent_sync() {
 }
 
 void MultiNodeCollider::_on_active_changed() {
+	// Cache offset inverse whenever offset or active state changes.
+	_cached_has_offset = _has_offset;
+	if (_has_offset) {
+		_cached_offset_inv = _transform_offset.affine_inverse();
+	}
 	if (is_inside_tree()) {
 		_rebuild();
 	}
@@ -231,6 +255,8 @@ void MultiNodeCollider::_sync_bodies() {
 		}
 	}
 
+	int dirty_count = _parent->get_dirty_count();
+
 	// Early-out: skip the full loop when nothing needs updating.
 	// _any_active_changed: must enter loop to handle space add/remove.
 	// Otherwise, only enter if we have bodies in space AND dirty transforms to push.
@@ -238,7 +264,6 @@ void MultiNodeCollider::_sync_bodies() {
 		if (count == old_count && get_active_count() == 0) {
 			return; // No bodies in space, no active changes — nothing to do.
 		}
-		int dirty_count = _parent->get_dirty_count();
 		if (count == old_count && dirty_count == 0) {
 			return; // No transforms changed — nothing to push.
 		}
@@ -247,9 +272,27 @@ void MultiNodeCollider::_sync_bodies() {
 	Ref<World3D> world = get_world_3d();
 	RID space = world.is_valid() ? world->get_space() : RID();
 	RID shape_rid = _shape->get_rid();
-	Transform3D global_xform = get_global_transform();
 	const uint8_t *active_ptr = _active.ptr();
 
+	// ---- Fast path: no new bodies, no active changes, just dirty transform pushes ----
+	if (!_any_active_changed && count == old_count && dirty_count > 0) {
+		const Vector<int> &dirty_indices = _parent->get_dirty_indices();
+		if (dirty_indices.size() > 0 && dirty_count < count) {
+			// Sparse iteration over only dirty indices.
+			for (int d = 0; d < dirty_indices.size(); d++) {
+				int i = dirty_indices[d];
+				if (!(active_ptr && i < _active.size() && active_ptr[i])) continue;
+				Transform3D xform = _parent->get_cached_global_transform() * compute_instance_transform(_parent->get_instance_transform(i));
+				if (xform != _last_world_transforms[i]) {
+					ps->body_set_state(_bodies[i], PhysicsServer3D::BODY_STATE_TRANSFORM, xform);
+					_last_world_transforms.write[i] = xform;
+				}
+			}
+			goto sync_done;
+		}
+	}
+
+	// ---- Full path: handles new bodies, active changes, and all-dirty ----
 	for (int i = 0; i < count; i++) {
 		bool should_be_active = active_ptr && i < _active.size() && active_ptr[i];
 
@@ -282,7 +325,7 @@ void MultiNodeCollider::_sync_bodies() {
 			// Active: add to space and set transform. Inactive: leave out of space.
 			if (should_be_active && space.is_valid()) {
 				ps->body_set_space(body_rid, space);
-				Transform3D xform = global_xform * compute_instance_transform(_parent->get_instance_transform(i));
+				Transform3D xform = _parent->get_cached_global_transform() * compute_instance_transform(_parent->get_instance_transform(i));
 				ps->body_set_state(body_rid, PhysicsServer3D::BODY_STATE_TRANSFORM, xform);
 				_last_world_transforms.write[i] = xform;
 				_in_space.set(i, 1);
@@ -299,26 +342,41 @@ void MultiNodeCollider::_sync_bodies() {
 				ps->body_set_state(_bodies[i], PhysicsServer3D::BODY_STATE_LINEAR_VELOCITY,  _parent->get_instance_linear_velocity(i));
 				ps->body_set_state(_bodies[i], PhysicsServer3D::BODY_STATE_ANGULAR_VELOCITY, _parent->get_instance_angular_velocity(i));
 				ps->body_set_space(_bodies[i], space);
-				Transform3D xform = global_xform * compute_instance_transform(_parent->get_instance_transform(i));
+				Transform3D xform = _parent->get_cached_global_transform() * compute_instance_transform(_parent->get_instance_transform(i));
 				ps->body_set_state(_bodies[i], PhysicsServer3D::BODY_STATE_TRANSFORM, xform);
 				_last_world_transforms.write[i] = xform;
 				_in_space.set(i, 1);
 			} else if (!should_be_active && currently_in_space) {
-				// Deactivated — save velocity to parent bus, then remove from space.
-				_parent->set_instance_linear_velocity(i,  ps->body_get_state(_bodies[i], PhysicsServer3D::BODY_STATE_LINEAR_VELOCITY));
-				_parent->set_instance_angular_velocity(i, ps->body_get_state(_bodies[i], PhysicsServer3D::BODY_STATE_ANGULAR_VELOCITY));
+				// Deactivated — save velocity to parent bus only if body is awake.
+				// Jolt retains pre-sleep sub-threshold velocity when sleeping; saving it
+				// would cause a jump on reactivation. Zero the bus for sleeping bodies.
+				bool is_sleeping = (bool)ps->body_get_state(_bodies[i], PhysicsServer3D::BODY_STATE_SLEEPING);
+				if (is_sleeping) {
+					_parent->set_instance_linear_velocity(i,  Vector3());
+					_parent->set_instance_angular_velocity(i, Vector3());
+				} else {
+					_parent->set_instance_linear_velocity(i,  ps->body_get_state(_bodies[i], PhysicsServer3D::BODY_STATE_LINEAR_VELOCITY));
+					_parent->set_instance_angular_velocity(i, ps->body_get_state(_bodies[i], PhysicsServer3D::BODY_STATE_ANGULAR_VELOCITY));
+				}
 				ps->body_set_space(_bodies[i], RID());
 				_last_world_transforms.write[i] = Transform3D();
 				_in_space.set(i, 0);
 			} else if (should_be_active && _parent->is_dirty(i)) {
 				// Normal transform push — only if actually changed.
-				Transform3D xform = global_xform * compute_instance_transform(_parent->get_instance_transform(i));
+				Transform3D xform = _parent->get_cached_global_transform() * compute_instance_transform(_parent->get_instance_transform(i));
 				if (xform != _last_world_transforms[i]) {
 					ps->body_set_state(_bodies[i], PhysicsServer3D::BODY_STATE_TRANSFORM, xform);
 					_last_world_transforms.write[i] = xform;
 				}
 			}
 		}
+	}
+
+sync_done:
+
+	// Update debug wireframes for all body types (kinematic, static, rigid).
+	if (_debug_visible) {
+		_debug_update_transforms();
 	}
 }
 
@@ -350,8 +408,6 @@ void MultiNodeCollider::_physics_process(double p_delta) {
 		_global_inv_dirty = false;
 	}
 
-	Transform3D offset_inv = _transform_offset.affine_inverse();
-	bool has_offset = (_transform_offset != Transform3D());
 	const uint8_t *active_ptr = _active.ptr();
 	bool any_updated = false;
 
@@ -378,8 +434,8 @@ void MultiNodeCollider::_physics_process(double p_delta) {
 		_last_world_transforms.write[i] = world_xform;
 
 		Transform3D local_xform = _cached_global_inv * world_xform;
-		if (has_offset) {
-			local_xform = local_xform * offset_inv;
+		if (_cached_has_offset) {
+			local_xform = local_xform * _cached_offset_inv;
 		}
 		_parent->set_instance_transform(i, local_xform);
 		any_updated = true;
@@ -389,8 +445,13 @@ void MultiNodeCollider::_physics_process(double p_delta) {
 		_in_readback = true;
 		_parent->end_batch();
 		_in_readback = false;
+		// Update debug wireframes to follow moved bodies.
+		if (_debug_visible) {
+			_debug_update_transforms();
+		}
 	} else {
-		_parent->end_batch();
+		// Nothing moved — cancel without firing instances_changed to all children.
+		_parent->cancel_batch();
 	}
 }
 
@@ -411,4 +472,130 @@ int MultiNodeCollider::get_instance_from_body(const RID &p_body_rid) const {
 		return it->value;
 	}
 	return -1;
+}
+
+// ---------------------------------------------------------------------------
+// Debug wireframe visualization
+// ---------------------------------------------------------------------------
+
+void MultiNodeCollider::_debug_check_toggle() {
+	SceneTree *tree = Object::cast_to<SceneTree>(Engine::get_singleton()->get_main_loop());
+	if (!tree) return;
+	bool should_show = tree->is_debugging_collisions_hint();
+	if (should_show == _debug_visible) return;
+	_debug_visible = should_show;
+	if (_debug_visible) {
+		_debug_create_wireframes();
+	} else {
+		_debug_destroy_wireframes();
+	}
+}
+
+void MultiNodeCollider::_debug_build_shape_mesh() {
+	_debug_mesh.unref();
+	if (!_shape.is_valid()) return;
+
+	// Get the shape's debug mesh (triangle-based).
+	Ref<ArrayMesh> source = _shape->get_debug_mesh();
+	if (source.is_null() || source->get_surface_count() == 0) return;
+
+	// Extract triangle vertices and convert to edge lines (wireframe).
+	Array surf = source->surface_get_arrays(0);
+	if (surf.size() <= Mesh::ARRAY_VERTEX) return;
+	PackedVector3Array verts = surf[Mesh::ARRAY_VERTEX];
+	if (verts.size() < 3) return;
+
+	// Every 3 vertices = 1 triangle → 3 edges (6 line vertices).
+	PackedVector3Array line_verts;
+	int tri_count = verts.size() / 3;
+	line_verts.resize(tri_count * 6);
+	for (int t = 0; t < tri_count; t++) {
+		int base = t * 3;
+		int out = t * 6;
+		line_verts.set(out + 0, verts[base + 0]);
+		line_verts.set(out + 1, verts[base + 1]);
+		line_verts.set(out + 2, verts[base + 1]);
+		line_verts.set(out + 3, verts[base + 2]);
+		line_verts.set(out + 4, verts[base + 2]);
+		line_verts.set(out + 5, verts[base + 0]);
+	}
+
+	_debug_mesh.instantiate();
+	Array arrays;
+	arrays.resize(Mesh::ARRAY_MAX);
+	arrays[Mesh::ARRAY_VERTEX] = line_verts;
+	_debug_mesh->add_surface_from_arrays(Mesh::PRIMITIVE_LINES, arrays);
+
+	// Cyan unshaded material — matches Godot's debug collider style.
+	Ref<StandardMaterial3D> mat;
+	mat.instantiate();
+	mat->set_shading_mode(BaseMaterial3D::SHADING_MODE_UNSHADED);
+	mat->set_albedo(Color(0.0, 0.6, 0.7, 0.8));
+	mat->set_transparency(BaseMaterial3D::TRANSPARENCY_ALPHA);
+	_debug_mesh->surface_set_material(0, mat);
+}
+
+void MultiNodeCollider::_debug_create_wireframes() {
+	_debug_destroy_wireframes();
+	if (!_parent || !_shape.is_valid() || !is_inside_tree()) return;
+
+	_debug_build_shape_mesh();
+	if (_debug_mesh.is_null()) return;
+
+	RenderingServer *rs = RenderingServer::get_singleton();
+	Ref<World3D> world = get_world_3d();
+	RID scenario = world.is_valid() ? world->get_scenario() : RID();
+	if (!scenario.is_valid()) return;
+
+	RID mesh_rid = _debug_mesh->get_rid();
+	int count = _bodies.size();
+	_debug_instances.resize(count);
+
+	Transform3D global_xform = get_global_transform();
+
+	for (int i = 0; i < count; i++) {
+		RID inst = rs->instance_create();
+		rs->instance_set_base(inst, mesh_rid);
+		rs->instance_set_scenario(inst, scenario);
+
+		if (_in_space[i] != 0 && i < _last_world_transforms.size()) {
+			rs->instance_set_transform(inst, _last_world_transforms[i]);
+		} else {
+			Transform3D xform = _parent->get_cached_global_transform() * compute_instance_transform(_parent->get_instance_transform(i));
+			rs->instance_set_transform(inst, xform);
+		}
+		rs->instance_set_visible(inst, _in_space[i] != 0);
+		_debug_instances.write[i] = inst;
+	}
+}
+
+void MultiNodeCollider::_debug_destroy_wireframes() {
+	RenderingServer *rs = RenderingServer::get_singleton();
+	if (!rs) {
+		_debug_instances.clear();
+		return;
+	}
+	for (int i = 0; i < _debug_instances.size(); i++) {
+		if (_debug_instances[i].is_valid()) {
+			rs->free_rid(_debug_instances[i]);
+		}
+	}
+	_debug_instances.clear();
+	_debug_mesh.unref();
+}
+
+void MultiNodeCollider::_debug_update_transforms() {
+	if (_debug_instances.size() == 0) return;
+	RenderingServer *rs = RenderingServer::get_singleton();
+	int count = MIN(_debug_instances.size(), _bodies.size());
+	Transform3D global_xform = get_global_transform();
+
+	for (int i = 0; i < count; i++) {
+		if (!_debug_instances[i].is_valid()) continue;
+		bool in_space = (i < _in_space.size()) && _in_space[i] != 0;
+		rs->instance_set_visible(_debug_instances[i], in_space);
+		if (in_space && i < _last_world_transforms.size()) {
+			rs->instance_set_transform(_debug_instances[i], _last_world_transforms[i]);
+		}
+	}
 }

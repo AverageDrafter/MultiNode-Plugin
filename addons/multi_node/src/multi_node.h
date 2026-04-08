@@ -65,6 +65,7 @@ public:
 	// --- Batch mode ---
 	void begin_batch();
 	void end_batch();
+	void cancel_batch(); // Resets batch mode without emitting signal (nothing changed).
 	void notify_transforms_changed();
 
 	// --- Per-instance data (shared, parent-level) ---
@@ -91,6 +92,12 @@ public:
 	// --- Direct access for C++ children (not bound to GDScript) ---
 	const Vector<Transform3D> &get_transforms_internal() const;
 	const PackedByteArray &get_dirty_flags_internal() const;
+	const Vector<int> &get_dirty_indices() const;
+
+	// --- Pre-computed world transforms (global * local, no child offset) ---
+	Transform3D get_instance_world_transform(int p_index) const;
+	const Vector<Transform3D> &get_world_transforms_internal() const;
+	Transform3D get_cached_global_transform() const;
 
 private:
 	int _instance_count = 0;
@@ -99,11 +106,17 @@ private:
 	Vector<Transform3D> _transforms;
 	PackedByteArray _dirty_flags;
 	int _dirty_count = 0;
+	Vector<int> _dirty_indices; // Sparse list of dirty instance indices.
 	bool _batch_mode = false;
 	bool _auto_dirty = false; // True if changes were made outside batch mode, deferred to end of frame.
 
 	int _data_stride = 4;
 	PackedFloat32Array _instance_data;
+
+	// Pre-computed world-space transforms: global_transform * local_transform.
+	// Recomputed for dirty instances before signaling children.
+	Vector<Transform3D> _world_transforms;
+	Transform3D _cached_global_xform;
 
 	Vector<Vector3> _instance_lin_vel;
 	Vector<Vector3> _instance_ang_vel;

@@ -44,6 +44,7 @@ void MultiNode3D::_update_transform_offset() {
 	basis.set_euler(_offset_rotation);
 	basis.scale_local(_offset_scale);
 	_transform_offset = Transform3D(basis, _offset_position);
+	_has_offset = (_transform_offset != Transform3D());
 	_on_active_changed();
 }
 
@@ -83,7 +84,7 @@ Transform3D MultiNode3D::compute_instance_transform(const Transform3D &p_instanc
 		// Strip rotation/scale — only keep position.
 		base = Transform3D(Basis(), base.origin);
 	}
-	if (_transform_offset != Transform3D()) {
+	if (_has_offset) {
 		base = base * _transform_offset;
 	}
 	return base;

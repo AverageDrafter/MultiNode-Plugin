@@ -258,10 +258,12 @@ void MultiNode::clear_instances() {
 		_transforms.clear();
 	}
 	_dirty_flags.resize(0);
+	_dirty_indices.clear();
 	_dirty_count = 0;
 	_instance_data.resize(0);
 	_instance_lin_vel.resize(0);
 	_instance_ang_vel.resize(0);
+	_world_transforms.clear();
 	_emit_and_clear_dirty();
 }
 
@@ -297,6 +299,12 @@ void MultiNode::_resize_buffers(int p_old_count, int p_new_count) {
 		_instance_lin_vel.write[i] = Vector3();
 		_instance_ang_vel.write[i] = Vector3();
 	}
+
+	// Resize world transform cache.
+	_world_transforms.resize(p_new_count);
+	for (int i = p_old_count; i < p_new_count; i++) {
+		_world_transforms.write[i] = Transform3D();
+	}
 }
 
 // ---------------------------------------------------------------------------
@@ -306,6 +314,7 @@ void MultiNode::_resize_buffers(int p_old_count, int p_new_count) {
 void MultiNode::mark_dirty(int p_index) {
 	if (p_index >= 0 && p_index < _instance_count && _dirty_flags[p_index] == 0) {
 		_dirty_flags.set(p_index, 1);
+		_dirty_indices.push_back(p_index);
 		_dirty_count++;
 	}
 }
@@ -313,6 +322,8 @@ void MultiNode::mark_dirty(int p_index) {
 void MultiNode::mark_all_dirty() {
 	_dirty_flags.fill(1);
 	_dirty_count = _instance_count;
+	// When all are dirty, clear the sparse list — consumers should use full iteration.
+	_dirty_indices.clear();
 }
 
 bool MultiNode::is_dirty(int p_index) const {
@@ -329,12 +340,36 @@ int MultiNode::get_dirty_count() const {
 void MultiNode::_clear_dirty() {
 	if (_dirty_count > 0) {
 		_dirty_flags.fill(0);
+		_dirty_indices.clear();
 		_dirty_count = 0;
 	}
 }
 
 void MultiNode::_emit_and_clear_dirty() {
-	_auto_dirty = false; // Clear deferred flag — we're emitting now.
+	_auto_dirty = false;
+
+	// Always cache global transform so children can use it.
+	if (is_inside_tree()) {
+		_cached_global_xform = get_global_transform();
+	}
+
+	// Pre-compute world transforms for dirty instances before notifying children.
+	if (_use_transforms && _dirty_count > 0) {
+		_world_transforms.resize(_instance_count);
+		if (_dirty_indices.size() > 0 && _dirty_count < _instance_count) {
+			// Sparse path: only update dirty indices.
+			for (int d = 0; d < _dirty_indices.size(); d++) {
+				int i = _dirty_indices[d];
+				_world_transforms.write[i] = _cached_global_xform * _transforms[i];
+			}
+		} else {
+			// Full path: all dirty (mark_all_dirty was called).
+			for (int i = 0; i < _instance_count; i++) {
+				_world_transforms.write[i] = _cached_global_xform * _transforms[i];
+			}
+		}
+	}
+
 	emit_signal("instances_changed");
 	_clear_dirty();
 }
@@ -436,6 +471,11 @@ void MultiNode::end_batch() {
 	_emit_and_clear_dirty();
 }
 
+void MultiNode::cancel_batch() {
+	_batch_mode = false;
+	// No signal emission — caller determined nothing changed.
+}
+
 void MultiNode::notify_transforms_changed() {
 	_emit_and_clear_dirty();
 }
@@ -450,6 +490,25 @@ const Vector<Transform3D> &MultiNode::get_transforms_internal() const {
 
 const PackedByteArray &MultiNode::get_dirty_flags_internal() const {
 	return _dirty_flags;
+}
+
+const Vector<int> &MultiNode::get_dirty_indices() const {
+	return _dirty_indices;
+}
+
+Transform3D MultiNode::get_instance_world_transform(int p_index) const {
+	if (p_index >= 0 && p_index < _world_transforms.size()) {
+		return _world_transforms[p_index];
+	}
+	return Transform3D();
+}
+
+const Vector<Transform3D> &MultiNode::get_world_transforms_internal() const {
+	return _world_transforms;
+}
+
+Transform3D MultiNode::get_cached_global_transform() const {
+	return _cached_global_xform;
 }
 
 // ---------------------------------------------------------------------------

@@ -267,12 +267,26 @@ void MultiNodeMesh::_sync_transforms() {
 		rs->multimesh_set_buffer(_multimesh, buffer);
 	} else {
 		// Sparse — only dirty instances.
-		for (int i = 0; i < count; i++) {
-			if (dirty[i]) {
+		const Vector<int> &dirty_indices = _parent->get_dirty_indices();
+		if (dirty_indices.size() > 0 && dirty_count < count) {
+			// Use sparse index list for small dirty counts.
+			for (int d = 0; d < dirty_indices.size(); d++) {
+				int i = dirty_indices[d];
 				if (active_ptr && i < _active.size() && !active_ptr[i]) {
 					rs->multimesh_instance_set_transform(_multimesh, i, HIDDEN_TRANSFORM);
 				} else {
 					rs->multimesh_instance_set_transform(_multimesh, i, compute_instance_transform(transforms[i]));
+				}
+			}
+		} else {
+			// Full scan fallback (mark_all_dirty was called).
+			for (int i = 0; i < count; i++) {
+				if (dirty[i]) {
+					if (active_ptr && i < _active.size() && !active_ptr[i]) {
+						rs->multimesh_instance_set_transform(_multimesh, i, HIDDEN_TRANSFORM);
+					} else {
+						rs->multimesh_instance_set_transform(_multimesh, i, compute_instance_transform(transforms[i]));
+					}
 				}
 			}
 		}

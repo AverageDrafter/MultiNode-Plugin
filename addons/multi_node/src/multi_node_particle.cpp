@@ -314,7 +314,7 @@ void MultiNodeParticle::_sync_emitters() {
 		return;
 	}
 
-	Transform3D global_xform = get_global_transform();
+	Transform3D global_xform = _parent->get_cached_global_transform();
 	const Vector<Transform3D> &transforms = _parent->get_transforms_internal();
 	const PackedByteArray &dirty = _parent->get_dirty_flags_internal();
 	const uint8_t *active_ptr = _active.size() > 0 ? _active.ptr() : nullptr;

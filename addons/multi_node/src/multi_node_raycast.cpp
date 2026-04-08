@@ -129,7 +129,7 @@ void MultiNodeRaycast::_cast_all() {
 	PhysicsDirectSpaceState3D *space_state = world->get_direct_space_state();
 	if (!space_state) return;
 
-	Transform3D global_xform = get_global_transform();
+	Transform3D global_xform = _parent->get_cached_global_transform();
 	const Vector<Transform3D> &transforms = _parent->get_transforms_internal();
 	const PackedByteArray &dirty = _parent->get_dirty_flags_internal();
 	const uint8_t *active_ptr = _active.size() > 0 ? _active.ptr() : nullptr;
@@ -159,8 +159,6 @@ void MultiNodeRaycast::_cast_all() {
 		exclude.resize(1);
 	}
 
-	int dirty_count = _parent->get_dirty_count();
-
 	for (int i = 0; i < count; i++) {
 		RayResult &result = _results.write[i];
 
@@ -169,10 +167,8 @@ void MultiNodeRaycast::_cast_all() {
 			continue;
 		}
 
-		// Skip instances that haven't moved since last cast (if nothing is dirty, skip all).
-		if (dirty_count > 0 && !dirty[i] && result.distance > 0.0f) {
-			continue; // Result from last frame is still valid.
-		}
+		// Always re-cast active instances. The old skip logic retained stale hits
+		// for stationary instances, preventing re-evaluation after physics moved them.
 
 		// Set exclude to this instance's own body.
 		if (collider) {

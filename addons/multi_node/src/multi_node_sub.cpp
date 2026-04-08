@@ -140,6 +140,7 @@ void MultiNodeSub::_cleanup() {
 		_parent = nullptr;
 	}
 	_active.resize(0);
+	_active_count = 0;
 	_range_flags.resize(0);
 	_instance_data.resize(0);
 }
@@ -191,7 +192,6 @@ void MultiNodeSub::set_instance_range(const String &p_range) {
 	_parse_range_string();
 	_recompute_active();
 	_on_active_changed();
-	notify_property_list_changed(); // Update active_count display.
 }
 
 String MultiNodeSub::get_instance_range() const {
@@ -256,9 +256,13 @@ void MultiNodeSub::_parse_range_string() {
 
 void MultiNodeSub::_recompute_active() {
 	int count = _active.size();
-	if (count == 0) return;
+	if (count == 0) {
+		_active_count = 0;
+		return;
+	}
 
 	int every = _instance_every;
+	int new_active_count = 0;
 
 	for (int i = 0; i < count; i++) {
 		// Layer 1: instance_every
@@ -277,9 +281,12 @@ void MultiNodeSub::_recompute_active() {
 		// Layer 2: range flags
 		bool range_ok = (i < _range_flags.size()) ? (_range_flags[i] == 1) : true;
 
-		_active.set(i, (every_ok && range_ok) ? 1 : 0);
+		bool is_active = every_ok && range_ok;
+		_active.set(i, is_active ? 1 : 0);
+		new_active_count += is_active ? 1 : 0;
 	}
 
+	_active_count = new_active_count;
 	_any_active_changed = true;
 }
 
@@ -292,6 +299,7 @@ void MultiNodeSub::set_instance_active(int p_index, bool p_active) {
 	uint8_t val = p_active ? 1 : 0;
 	if (_active[p_index] != val) {
 		_active.set(p_index, val);
+		_active_count += p_active ? 1 : -1;
 		_any_active_changed = true;
 	}
 }
@@ -303,6 +311,7 @@ bool MultiNodeSub::is_instance_active(int p_index) const {
 
 void MultiNodeSub::set_all_active(bool p_active) {
 	_active.fill(p_active ? 1 : 0);
+	_active_count = p_active ? _active.size() : 0;
 	_any_active_changed = true;
 }
 
@@ -322,12 +331,7 @@ void MultiNodeSub::commit_active_state() {
 }
 
 int MultiNodeSub::get_active_count() const {
-	int count = 0;
-	const uint8_t *ptr = _active.ptr();
-	for (int i = 0; i < _active.size(); i++) {
-		count += ptr[i];
-	}
-	return count;
+	return _active_count;
 }
 
 MultiNode *MultiNodeSub::get_multi_node_parent() const {

@@ -55,6 +55,7 @@ private:
 	bool _monitorable = false;
 
 	Vector<RID> _areas;
+	PackedByteArray _in_space; // 1 = area is currently in the physics space.
 	HashMap<RID, int> _area_to_index;
 
 	void _rebuild();

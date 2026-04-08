@@ -61,6 +61,7 @@ protected:
 	PackedByteArray _active;
 	PackedByteArray _prev_active; // Previous frame's active state for change detection.
 	bool _any_active_changed = false;
+	int _active_count = 0; // Cached count of active instances (maintained incrementally).
 
 	// --- Layer 1: instance_every ---
 	int32_t _instance_every = 1;

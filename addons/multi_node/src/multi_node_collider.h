@@ -6,6 +6,7 @@
 #include <godot_cpp/variant/rid.hpp>
 #include <godot_cpp/templates/vector.hpp>
 #include <godot_cpp/templates/hash_map.hpp>
+#include <godot_cpp/classes/array_mesh.hpp>
 
 namespace godot {
 
@@ -72,12 +73,26 @@ private:
 	bool _in_readback = false;
 	Transform3D _cached_global_inv; // Cached inverse of global transform.
 	bool _global_inv_dirty = true;
+	Transform3D _cached_offset_inv; // Cached inverse of transform offset.
+	bool _cached_has_offset = false;
 
 	void _rebuild();
 	void _clear_bodies();
 	void _sync_bodies();
 	void _compute_effective_layers(uint32_t &r_layer, uint32_t &r_mask) const;
 	void _update_all_layers();
+
+	// --- Debug wireframe visualization ---
+	bool _debug_visible = false;
+	Vector<RID> _debug_instances;
+	RID _debug_mesh_rid;
+	Ref<ArrayMesh> _debug_mesh;
+
+	void _debug_check_toggle();
+	void _debug_create_wireframes();
+	void _debug_destroy_wireframes();
+	void _debug_update_transforms();
+	void _debug_build_shape_mesh();
 };
 
 } // namespace godot

@@ -449,7 +449,7 @@ void MultiNodeAudio::_fill_buffer() {
 		}
 	}
 
-	Transform3D global_xform = get_global_transform();
+	Transform3D global_xform = _parent->get_cached_global_transform();
 	const Vector<Transform3D> &transforms = _parent->get_transforms_internal();
 	const uint8_t *active_ptr = _active.size() > 0 ? _active.ptr() : nullptr;
 	const uint8_t *playing_ptr = _inst_playing.ptr();

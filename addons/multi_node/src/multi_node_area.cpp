@@ -98,6 +98,7 @@ void MultiNodeArea::_clear_areas() {
 		}
 	}
 	_areas.clear();
+	_in_space.resize(0);
 	_area_to_index.clear();
 }
 
@@ -114,7 +115,7 @@ void MultiNodeArea::_sync_areas() {
 	int count = _parent->get_instance_count();
 	int old_count = _areas.size();
 
-	// Shrink — remove from map before freeing.
+	// Shrink — remove from map and space before freeing.
 	for (int i = count; i < old_count; i++) {
 		if (_areas[i].is_valid()) {
 			_area_to_index.erase(_areas[i]);
@@ -123,8 +124,13 @@ void MultiNodeArea::_sync_areas() {
 	}
 	_areas.resize(count);
 
-	// After swap-remove, surviving areas may have moved to different indices.
-	// Rebuild the map for all existing entries to fix stale index references.
+	int old_in_space_count = _in_space.size();
+	_in_space.resize(count);
+	for (int i = old_in_space_count; i < count; i++) {
+		_in_space.set(i, 0);
+	}
+
+	// Rebuild map after shrink.
 	if (count < old_count) {
 		for (int i = 0; i < count; i++) {
 			if (_areas[i].is_valid()) {
@@ -136,10 +142,12 @@ void MultiNodeArea::_sync_areas() {
 	Ref<World3D> world = get_world_3d();
 	RID space = world.is_valid() ? world->get_space() : RID();
 	RID shape_rid = _shape->get_rid();
-	Transform3D global_xform = get_global_transform();
+	Transform3D global_xform = _parent->get_cached_global_transform();
 	const uint8_t *active_ptr = _active.size() > 0 ? _active.ptr() : nullptr;
 
 	for (int i = 0; i < count; i++) {
+		bool should_be_active = active_ptr && i < _active.size() && active_ptr[i];
+
 		if (i >= old_count) {
 			// Create new area.
 			RID area_rid = ps->area_create();
@@ -149,22 +157,36 @@ void MultiNodeArea::_sync_areas() {
 			ps->area_set_monitorable(area_rid, _monitorable);
 
 			_areas.write[i] = area_rid;
-			_area_to_index.insert(area_rid, i); // Incremental map update.
+			_area_to_index.insert(area_rid, i);
 
-			if (active_ptr && i < _active.size() && active_ptr[i] && space.is_valid()) {
+			if (should_be_active && space.is_valid()) {
 				ps->area_set_space(area_rid, space);
 				Transform3D xform = global_xform * compute_instance_transform(_parent->get_instance_transform(i));
 				ps->area_set_transform(area_rid, xform);
+				_in_space.set(i, 1);
 			}
-		} else if (_parent->is_dirty(i) && _areas[i].is_valid()) {
-			if (active_ptr && i < _active.size() && active_ptr[i]) {
+		} else if (_areas[i].is_valid()) {
+			bool currently_in_space = _in_space[i] != 0;
+
+			if (should_be_active && !currently_in_space && space.is_valid()) {
+				// Became active — add to space.
+				ps->area_set_space(_areas[i], space);
+				Transform3D xform = global_xform * compute_instance_transform(_parent->get_instance_transform(i));
+				ps->area_set_transform(_areas[i], xform);
+				_in_space.set(i, 1);
+			} else if (!should_be_active && currently_in_space) {
+				// Became inactive — remove from space so it stops doing overlap checks.
+				ps->area_set_space(_areas[i], RID());
+				_in_space.set(i, 0);
+			} else if (should_be_active && currently_in_space && _parent->is_dirty(i)) {
+				// Active, in space, transform changed — update.
 				Transform3D xform = global_xform * compute_instance_transform(_parent->get_instance_transform(i));
 				ps->area_set_transform(_areas[i], xform);
 			}
 		}
 	}
 
-	// Map is maintained incrementally — only rebuild if we just created from scratch.
+	// Rebuild map on first-time full creation.
 	if (old_count == 0 && count > 0) {
 		_area_to_index.clear();
 		for (int i = 0; i < count; i++) {

@@ -482,8 +482,8 @@ void MultiNodeInstancer::generate() {
 
 	_generating = true;
 
-	// Ensure parent has enough instances.
-	if (_parent->get_instance_count() < gen_count) {
+	// Sync parent instance count to generated count (grow or shrink).
+	if (_parent->get_instance_count() != gen_count) {
 		_parent->set_instance_count(gen_count);
 	}
 

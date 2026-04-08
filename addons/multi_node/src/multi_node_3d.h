@@ -17,6 +17,7 @@ protected:
 	static void _bind_methods();
 
 	Transform3D _transform_offset;
+	bool _has_offset = false; // Cached: _transform_offset != identity.
 
 private:
 	Vector3 _offset_position;

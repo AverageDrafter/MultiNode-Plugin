@@ -155,7 +155,7 @@ void MultiNodeLight::_sync_lights() {
 
 	Ref<World3D> world = get_world_3d();
 	RID scenario = world.is_valid() ? world->get_scenario() : RID();
-	Transform3D global_xform = get_global_transform();
+	Transform3D global_xform = _parent->get_cached_global_transform();
 	const Vector<Transform3D> &transforms = _parent->get_transforms_internal();
 	const PackedByteArray &dirty = _parent->get_dirty_flags_internal();
 	const uint8_t *active_ptr = _active.size() > 0 ? _active.ptr() : nullptr;
