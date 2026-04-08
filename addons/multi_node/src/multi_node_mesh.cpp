@@ -28,6 +28,7 @@ void MultiNodeMesh::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_use_instance_colors", "enable"), &MultiNodeMesh::set_use_instance_colors);
 	ClassDB::bind_method(D_METHOD("get_use_instance_colors"), &MultiNodeMesh::get_use_instance_colors);
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_instance_colors"), "set_use_instance_colors", "get_use_instance_colors");
+
 }
 
 // ---------------------------------------------------------------------------
@@ -65,6 +66,7 @@ void MultiNodeMesh::_notification(int p_what) {
 				RenderingServer::get_singleton()->instance_set_visible(_instance, is_visible_in_tree());
 			}
 		} break;
+
 	}
 }
 
@@ -253,15 +255,16 @@ void MultiNodeMesh::_sync_transforms() {
 			} else {
 				xform = compute_instance_transform(transforms[i]);
 			}
-			// Row-major 4x3 matrix (Godot MultiMesh buffer format).
 			buf[off + 0] = xform.basis[0][0]; buf[off + 1] = xform.basis[0][1]; buf[off + 2] = xform.basis[0][2]; buf[off + 3] = xform.origin.x;
 			buf[off + 4] = xform.basis[1][0]; buf[off + 5] = xform.basis[1][1]; buf[off + 6] = xform.basis[1][2]; buf[off + 7] = xform.origin.y;
 			buf[off + 8] = xform.basis[2][0]; buf[off + 9] = xform.basis[2][1]; buf[off + 10] = xform.basis[2][2]; buf[off + 11] = xform.origin.z;
 
+			int data_off = 12;
 			if (_use_instance_colors) {
 				Color tc = get_tinted_color(i);
-				buf[off + 12] = tc.r; buf[off + 13] = tc.g;
-				buf[off + 14] = tc.b; buf[off + 15] = tc.a;
+				buf[off + data_off] = tc.r; buf[off + data_off + 1] = tc.g;
+				buf[off + data_off + 2] = tc.b; buf[off + data_off + 3] = tc.a;
+				data_off += 4;
 			}
 		}
 		rs->multimesh_set_buffer(_multimesh, buffer);
@@ -304,7 +307,10 @@ void MultiNodeMesh::_sync_transforms() {
 		}
 	}
 
-	rs->multimesh_set_visible_instances(_multimesh, -1);
+	// Set visible instance count: 0 when all hidden, -1 (all) otherwise.
+	// visible_instances=0 completely skips the MultiMesh in rendering —
+	// no vertex processing, no AABB check, zero GPU cost.
+	rs->multimesh_set_visible_instances(_multimesh, get_active_count() > 0 ? -1 : 0);
 }
 
 // ---------------------------------------------------------------------------
@@ -335,3 +341,4 @@ void MultiNodeMesh::_sync_colors() {
 	}
 	rs->multimesh_set_buffer(_multimesh, buffer);
 }
+

@@ -203,6 +203,9 @@ void MultiNodeCollider::_clear_bodies() {
 	}
 	for (int i = 0; i < _bodies.size(); i++) {
 		if (_bodies[i].is_valid()) {
+			if (i < _in_space.size() && _in_space[i] != 0) {
+				ps->body_set_space(_bodies[i], RID());
+			}
 			ps->free_rid(_bodies[i]);
 		}
 	}
@@ -229,9 +232,12 @@ void MultiNodeCollider::_sync_bodies() {
 	int count = _parent->get_instance_count();
 	int old_count = _bodies.size();
 
-	// Free removed bodies and remove from map.
+	// Free removed bodies — yank from space first, then free.
 	for (int i = count; i < old_count; i++) {
 		if (_bodies[i].is_valid()) {
+			if (i < _in_space.size() && _in_space[i] != 0) {
+				ps->body_set_space(_bodies[i], RID());
+			}
 			_body_to_index.erase(_bodies[i]);
 			ps->free_rid(_bodies[i]);
 		}
@@ -320,9 +326,8 @@ void MultiNodeCollider::_sync_bodies() {
 			ps->body_set_collision_mask(body_rid, effective_mask);
 
 			_bodies.write[i] = body_rid;
-			_body_to_index.insert(body_rid, i); // Incremental map update.
+			_body_to_index.insert(body_rid, i);
 
-			// Active: add to space and set transform. Inactive: leave out of space.
 			if (should_be_active && space.is_valid()) {
 				ps->body_set_space(body_rid, space);
 				Transform3D xform = _parent->get_cached_global_transform() * compute_instance_transform(_parent->get_instance_transform(i));
@@ -348,8 +353,6 @@ void MultiNodeCollider::_sync_bodies() {
 				_in_space.set(i, 1);
 			} else if (!should_be_active && currently_in_space) {
 				// Deactivated — save velocity to parent bus only if body is awake.
-				// Jolt retains pre-sleep sub-threshold velocity when sleeping; saving it
-				// would cause a jump on reactivation. Zero the bus for sleeping bodies.
 				bool is_sleeping = (bool)ps->body_get_state(_bodies[i], PhysicsServer3D::BODY_STATE_SLEEPING);
 				if (is_sleeping) {
 					_parent->set_instance_linear_velocity(i,  Vector3());

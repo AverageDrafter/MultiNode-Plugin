@@ -1,0 +1,133 @@
+[gd_scene format=3 uid="uid://cjtmrgnutg1ud"]
+
+[ext_resource type="Script" uid="uid://dguejfv1hghg6" path="res://test_camera.gd" id="2"]
+[ext_resource type="Script" uid="uid://dywpb52xl2a5i" path="res://test_baseline_scene.gd" id="3"]
+[ext_resource type="Script" uid="uid://ofr4ewcubqmy" path="res://test_multi_node.gd" id="4"]
+
+[sub_resource type="StandardMaterial3D" id="BoxMat_1"]
+vertex_color_use_as_albedo = true
+
+[sub_resource type="BoxMesh" id="BoxMesh_1"]
+material = SubResource("BoxMat_1")
+
+[sub_resource type="BoxShape3D" id="BoxShape_1"]
+
+[sub_resource type="StandardMaterial3D" id="FloorMat_1"]
+albedo_color = Color(0.15, 0.25, 0.15, 1)
+
+[sub_resource type="PlaneMesh" id="FloorMesh_1"]
+size = Vector2(200, 200)
+
+[sub_resource type="BoxShape3D" id="FloorBoxShape_1"]
+size = Vector3(200, 1, 200)
+
+[sub_resource type="StandardMaterial3D" id="CeilingMat_1"]
+albedo_color = Color(0.15, 0.15, 0.25, 1)
+
+[sub_resource type="StandardMaterial3D" id="SlopeMat_1"]
+albedo_color = Color(0.25, 0.22, 0.18, 1)
+
+[sub_resource type="BoxMesh" id="SlopeMesh_1"]
+size = Vector3(30, 1, 30)
+
+[sub_resource type="BoxShape3D" id="SlopeShape_1"]
+size = Vector3(30, 1, 30)
+
+[sub_resource type="BoxMesh" id="SlopeMesh_2"]
+size = Vector3(30, 1, 30)
+
+[sub_resource type="BoxShape3D" id="SlopeShape_2"]
+size = Vector3(30, 1, 30)
+
+[node name="TestScene" type="Node3D" unique_id=1445902775]
+script = ExtResource("3")
+
+[node name="MultiNode" type="MultiNode" parent="." unique_id=36526003]
+script = ExtResource("4")
+count = 4000
+
+[node name="MultiNodeMesh" type="MultiNodeMesh" parent="MultiNode" unique_id=1762587385]
+mesh = SubResource("BoxMesh_1")
+use_instance_colors = true
+
+[node name="MultiNodeCollider" type="MultiNodeCollider" parent="MultiNode" unique_id=1271369273]
+shape = SubResource("BoxShape_1")
+body_type = 2
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=635433538]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.4, 14.06, 54.66)
+fov = 50.0
+script = ExtResource("2")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=562919697]
+transform = Transform3D(0.79194915, 0.52842927, 0.30590734, 0.29574767, -0.7702907, 0.5649652, 0.5341816, -0.3569523, -0.7663127, 0, 0, 0)
+shadow_enabled = true
+
+[node name="DirectionalLight3D2" type="DirectionalLight3D" parent="." unique_id=2072601856]
+transform = Transform3D(0.68352884, 0.44255742, -0.580458, -0.72003984, 0.5392457, -0.4367573, 0.11971855, 0.7164895, 0.6872484, 0, 0, 0)
+light_energy = 0.5
+shadow_enabled = true
+
+[node name="DirectionalLight3D3" type="DirectionalLight3D" parent="." unique_id=592419899]
+transform = Transform3D(-0.33952537, 0.9400727, -0.031395696, -0.89197487, -0.3112022, 0.32792354, 0.29850158, 0.13934256, 0.94418234, 0, 0, 0)
+light_energy = 0.5
+shadow_enabled = true
+
+[node name="Floor" type="StaticBody3D" parent="." unique_id=1509775117]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -20, 0)
+
+[node name="FloorMesh" type="MeshInstance3D" parent="Floor" unique_id=1238189506]
+material_override = SubResource("FloorMat_1")
+mesh = SubResource("FloorMesh_1")
+
+[node name="FloorCollider" type="CollisionShape3D" parent="Floor" unique_id=482304804]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+shape = SubResource("FloorBoxShape_1")
+
+[node name="Ceiling" type="StaticBody3D" parent="." unique_id=1371386128]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 100, 0)
+
+[node name="CeilingMesh" type="MeshInstance3D" parent="Ceiling" unique_id=1874476315]
+material_override = SubResource("CeilingMat_1")
+mesh = SubResource("FloorMesh_1")
+
+[node name="CeilingCollider" type="CollisionShape3D" parent="Ceiling" unique_id=1993924997]
+shape = SubResource("FloorBoxShape_1")
+
+[node name="SlopeCenter" type="StaticBody3D" parent="." unique_id=108668652]
+transform = Transform3D(1, 0, 0, 0, 0.59420633, -0.8043125, 0, 0.8043125, 0.59420633, 0, 15.402809, -5.8556366)
+
+[node name="Mesh" type="MeshInstance3D" parent="SlopeCenter" unique_id=862238276]
+material_override = SubResource("SlopeMat_1")
+mesh = SubResource("SlopeMesh_1")
+
+[node name="Collider" type="CollisionShape3D" parent="SlopeCenter" unique_id=1614002829]
+shape = SubResource("SlopeShape_1")
+
+[node name="SlopeLeft" type="StaticBody3D" parent="." unique_id=2110283787]
+transform = Transform3D(0.9399206, 0.2986705, 0.16536424, -0.2335891, 0.91587967, -0.32649767, -0.24896896, 0.2682546, 0.9306204, -18, 2, 6.141323)
+
+[node name="Mesh" type="MeshInstance3D" parent="SlopeLeft" unique_id=819184373]
+material_override = SubResource("SlopeMat_1")
+mesh = SubResource("SlopeMesh_2")
+
+[node name="Collider" type="CollisionShape3D" parent="SlopeLeft" unique_id=1989531895]
+shape = SubResource("SlopeShape_2")
+
+[node name="SlopeRight" type="StaticBody3D" parent="." unique_id=977227692]
+transform = Transform3D(0.93115866, -0.33057866, -0.15382253, 0.2663796, 0.9048522, -0.33209142, 0.24896896, 0.2682546, 0.9306204, 18, 2, 6.141323)
+
+[node name="Mesh" type="MeshInstance3D" parent="SlopeRight" unique_id=1827921097]
+material_override = SubResource("SlopeMat_1")
+mesh = SubResource("SlopeMesh_2")
+
+[node name="Collider" type="CollisionShape3D" parent="SlopeRight" unique_id=1599266912]
+shape = SubResource("SlopeShape_2")
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=2070224060]
+
+[node name="Label" type="Label" parent="UI" unique_id=1725971642]
+offset_right = 600.0
+offset_bottom = 200.0
+theme_override_font_sizes/font_size = 16
+text = "Loading..."

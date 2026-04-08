@@ -301,6 +301,11 @@ void MultiNodeSub::set_instance_active(int p_index, bool p_active) {
 		_active.set(p_index, val);
 		_active_count += p_active ? 1 : -1;
 		_any_active_changed = true;
+		// Tell parent to emit instances_changed at end of frame so all
+		// sub-nodes can process the active↔space transitions.
+		if (_parent) {
+			_parent->request_sync();
+		}
 	}
 }
 

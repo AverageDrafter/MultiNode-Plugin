@@ -56,6 +56,7 @@ private:
 
 	Vector<RID> _areas;
 	PackedByteArray _in_space; // 1 = area is currently in the physics space.
+	Vector<Transform3D> _last_transforms; // Cached for dirty-skip (like collider).
 	HashMap<RID, int> _area_to_index;
 
 	void _rebuild();

@@ -67,6 +67,7 @@ public:
 	void end_batch();
 	void cancel_batch(); // Resets batch mode without emitting signal (nothing changed).
 	void notify_transforms_changed();
+	void request_sync(); // Sub-node active state changed — emit signal at end of frame.
 
 	// --- Per-instance data (shared, parent-level) ---
 	void set_data_stride(int p_stride);

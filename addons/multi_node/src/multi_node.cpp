@@ -480,6 +480,14 @@ void MultiNode::notify_transforms_changed() {
 	_emit_and_clear_dirty();
 }
 
+void MultiNode::request_sync() {
+	// A sub-node's active state changed — ensure instances_changed fires
+	// at end of frame so all sub-nodes can process active↔space transitions.
+	if (!_batch_mode) {
+		_auto_dirty = true;
+	}
+}
+
 // ---------------------------------------------------------------------------
 // Direct access for C++ children
 // ---------------------------------------------------------------------------
