@@ -89,16 +89,19 @@ MultiNode doesn't just close the instancing gap in Godot. It provides per-instan
 
 ## Performance
 
-Tested with 1,500 rigid-body cubes with self-collision (Jolt physics):
+Tested with 3,000 rigid-body cubes with self-collision (Jolt physics):
 
-|Metric|MultiNode|Standard Godot|
-|-|-|-|
-|Scene tree nodes|\~20|\~4,500|
-|Peak FPS (cascade)|\~90|\~50|
-|Settled FPS|\~90|\~90|
-|VRAM|Same|Same|
+|Metric|MultiNode|Standard Godot (MultiMesh)|Standard Godot (individual nodes)|
+|-|-|-|-|
+|Scene tree nodes|\~20|\~6,000+|9,000+|
+|Scene file size|Small|Small|1.5 MB+|
+|Peak FPS (active)|\~60|\~35|\~10|
+|Settled FPS|\~90|\~90|Unstable|
+|VRAM|Same|Same|Same|
 
-The advantage shows during chaos — when everything is moving and colliding simultaneously. Batched PhysicsServer calls and sleep-optimized readback keep the frame rate stable where individual node overhead collapses.
+**v0.2.1 optimizations:** Physics readback now skips sleeping bodies entirely (`cancel_batch`), dirty transform updates use sparse index lists instead of scanning all N instances, and fully-hidden MultiMeshes cost zero GPU time. The result: resting-state performance matches raw Godot, and active-state physics scales significantly better.
+
+Included test scenes (`test_standard_scene.tscn` and `test_multinode_baseline_scene.tscn`) provide apples-to-apples comparison with identical spawn patterns, environment, and camera.
 
 \---
 
@@ -188,6 +191,12 @@ Projected decals at each instance's position via `RenderingServer`.
 
 **Use cases:** Blood splatters, tire marks, scorch marks, footprints, terrain painting.
 
+### MultiNodeMarker
+
+Per-instance wireframe visualization. Four shapes: **Cross** (minimal position marker), **Diamond** (wireframe octahedron), **Sphere** (three orthogonal circles), and **Axes** (RGB XYZ arrows showing orientation). Editor-only by default, with always-on-top option.
+
+**Use cases:** Visualizing invisible instances (audio sources, areas, raycasts), teaching what instances are, debugging spatial placement.
+
 ### MultiNodeSub (Base Class)
 
 Base for all child nodes. Provides:
@@ -243,7 +252,16 @@ Requires: Godot 4.6, Python 3, SCons, C++ compiler (MSVC or MinGW-w64).
 
 ## Status
 
-**Open Alpha (v0.2.0)** — 16 node types + 1 resource, all working. The API may evolve based on community feedback.
+**Open Alpha (v0.2.1)** — 17 node types + 1 resource, all working. The API may evolve based on community feedback.
+
+**v0.2.1 changelog:**
+* **MultiNodeMarker** — per-instance wireframe visualization (Cross, Diamond, Sphere, Axes) for debugging and teaching
+* Major physics optimization: cancel_batch, sparse dirty tracking, cached active counts
+* visible_instances=0 fix: fully-hidden MultiMeshes no longer waste GPU time on stale AABBs
+* Area Jolt workaround: space-toggle instead of free_rid prevents broad-phase leaks
+* request_sync: script-driven set_instance_active() changes are always processed
+* Bug fixes across all spatial sub-nodes (centralized transforms, raycast stale-hits, instancer shrink)
+* Comparison test scenes for benchmarking against standard Godot
 
 * [Report issues](https://github.com/AverageDrafter/MultiNode-Plugin-Working/issues)
 * [Discord community](https://discord.gg/tcYjECNYt7)
