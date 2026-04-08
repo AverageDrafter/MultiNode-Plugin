@@ -30,6 +30,7 @@ protected:
 	RID _get_visual_instance_rid() const override;
 
 	void _on_instance_color_changed(int p_index, const Color &p_color) override;
+	void _on_colors_changed() override;
 
 public:
 	MultiNodeSprite();

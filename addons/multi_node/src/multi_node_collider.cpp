@@ -441,6 +441,10 @@ void MultiNodeCollider::_physics_process(double p_delta) {
 			local_xform = local_xform * _cached_offset_inv;
 		}
 		_parent->set_instance_transform(i, local_xform);
+		// Write angular velocity to the parent bus so sub-nodes (e.g. sprite
+		// animation scripts) can read it without a separate PhysicsServer call.
+		_parent->set_instance_angular_velocity(i,
+				ps->body_get_state(_bodies[i], PhysicsServer3D::BODY_STATE_ANGULAR_VELOCITY));
 		any_updated = true;
 	}
 

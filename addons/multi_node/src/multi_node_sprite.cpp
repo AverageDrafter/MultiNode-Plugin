@@ -120,6 +120,16 @@ void MultiNodeSprite::_on_instance_color_changed(int p_index, const Color &p_col
 	}
 }
 
+void MultiNodeSprite::_on_colors_changed() {
+	// Push all tinted colors to the multimesh — called by set_tint / set_all_colors.
+	if (!_multimesh.is_valid() || _current_count == 0) return;
+	RenderingServer *rs = RenderingServer::get_singleton();
+	int count = MIN(_current_count, _colors.size());
+	for (int i = 0; i < count; i++) {
+		rs->multimesh_instance_set_color(_multimesh, i, get_tinted_color(i));
+	}
+}
+
 void MultiNodeSprite::set_instance_frame(int p_index, int p_frame) {
 	if (p_index >= 0 && p_index < _frames.size()) {
 		_frames.set(p_index, (float)p_frame);
@@ -321,5 +331,5 @@ void MultiNodeSprite::_sync_transforms() {
 			}
 		}
 	}
-	rs->multimesh_set_visible_instances(_multimesh, -1);
+	rs->multimesh_set_visible_instances(_multimesh, get_active_count() > 0 ? -1 : 0);
 }
