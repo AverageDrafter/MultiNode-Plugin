@@ -4,6 +4,7 @@
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/classes/physics_server3d.hpp>
 #include <godot_cpp/classes/world3d.hpp>
+#include <godot_cpp/variant/utility_functions.hpp>
 
 using namespace godot;
 
@@ -103,12 +104,17 @@ void MultiNodeArea::_clear_areas() {
 		_area_to_index.clear();
 		return;
 	}
+	int freed_count = 0;
+	int was_in_space = 0;
 	for (int i = 0; i < _areas.size(); i++) {
 		if (_areas[i].is_valid()) {
+			if (i < _in_space.size() && _in_space[i] != 0) was_in_space++;
 			ps->area_set_space(_areas[i], RID());
 			ps->free_rid(_areas[i]);
+			freed_count++;
 		}
 	}
+	UtilityFunctions::print("[MultiNodeArea] _clear_areas: freed=", freed_count, " was_in_space=", was_in_space);
 	_areas.clear();
 	_in_space.resize(0);
 	_last_transforms.clear();
@@ -174,6 +180,9 @@ void MultiNodeArea::_sync_areas() {
 	Transform3D global_xform = _parent->get_cached_global_transform();
 	const uint8_t *active_ptr = _active.ptr();
 
+	// Trace counters.
+	int _dbg_created = 0, _dbg_added = 0, _dbg_removed = 0;
+
 	// Create areas upfront for new slots (like collider creates bodies).
 	// NEVER free_rid during normal operation — Jolt leaks freed areas in
 	// its broad-phase. Toggle space membership instead.
@@ -191,12 +200,14 @@ void MultiNodeArea::_sync_areas() {
 			_areas.write[i] = area_rid;
 			_area_to_index.insert(area_rid, i);
 
-if (should_be_active && space.is_valid()) {
+			_dbg_created++;
+			if (should_be_active && space.is_valid()) {
 				ps->area_set_space(area_rid, space);
 				Transform3D xform = global_xform * compute_instance_transform(_parent->get_instance_transform(i));
 				ps->area_set_transform(area_rid, xform);
 				_last_transforms.write[i] = xform;
 				_in_space.set(i, 1);
+				_dbg_added++;
 			} else {
 				_last_transforms.write[i] = Transform3D();
 				_in_space.set(i, 0);
@@ -211,11 +222,13 @@ if (should_be_active && space.is_valid()) {
 				ps->area_set_transform(_areas[i], xform);
 				_last_transforms.write[i] = xform;
 				_in_space.set(i, 1);
+				_dbg_added++;
 			} else if (!should_be_active && currently_in_space) {
 				// Remove from space — do NOT free_rid.
 				ps->area_set_space(_areas[i], RID());
 				_last_transforms.write[i] = Transform3D();
 				_in_space.set(i, 0);
+				_dbg_removed++;
 			} else if (should_be_active && currently_in_space && _parent->is_dirty(i)) {
 				Transform3D xform = global_xform * compute_instance_transform(_parent->get_instance_transform(i));
 				if (xform != _last_transforms[i]) {
@@ -226,4 +239,13 @@ if (should_be_active && space.is_valid()) {
 		}
 	}
 
+	if (_dbg_created > 0 || _dbg_added > 0 || _dbg_removed > 0) {
+		int in_space_count = 0;
+		for (int i = 0; i < _in_space.size(); i++) {
+			if (_in_space[i] != 0) in_space_count++;
+		}
+		UtilityFunctions::print("[MultiNodeArea] _sync: created=", _dbg_created,
+			" added_to_space=", _dbg_added, " removed_from_space=", _dbg_removed,
+			" total_rids=", _areas.size(), " currently_in_space=", in_space_count);
+	}
 }

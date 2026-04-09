@@ -28,7 +28,6 @@ void MultiNodeMesh::_bind_methods() {
 	ClassDB::bind_method(D_METHOD("set_use_instance_colors", "enable"), &MultiNodeMesh::set_use_instance_colors);
 	ClassDB::bind_method(D_METHOD("get_use_instance_colors"), &MultiNodeMesh::get_use_instance_colors);
 	ADD_PROPERTY(PropertyInfo(Variant::BOOL, "use_instance_colors"), "set_use_instance_colors", "get_use_instance_colors");
-
 }
 
 // ---------------------------------------------------------------------------
@@ -241,7 +240,7 @@ void MultiNodeMesh::_sync_transforms() {
 
 	if (resized) {
 		// Full upload via bulk buffer — one RenderingServer call for all instances.
-		// Buffer layout per instance: 12 floats (Transform3D) + 4 floats (Color, if enabled).
+		// Buffer layout: 12 (transform) + 4 (color, if enabled) + 4 (custom_data, if enabled).
 		int stride = 12 + (_use_instance_colors ? 4 : 0);
 		PackedFloat32Array buffer;
 		buffer.resize(count * stride);

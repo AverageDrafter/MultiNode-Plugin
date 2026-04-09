@@ -16,8 +16,8 @@
 #include "multi_node_decal.h"
 #include "multi_node_light.h"
 #include "multi_node_instancer.h"
-#include "multi_node_instance_data.h"
 #include "multi_node_marker.h"
+#include "multi_node_instance_data.h"
 
 #include <gdextension_interface.h>
 #include <godot_cpp/core/defs.hpp>
@@ -45,8 +45,8 @@ void initialize_multi_node_module(ModuleInitializationLevel p_level) {
 	GDREGISTER_CLASS(MultiNodeDecal);
 	GDREGISTER_CLASS(MultiNodeLight);
 	GDREGISTER_CLASS(MultiNodeInstancer);
-	GDREGISTER_CLASS(MultiNodeInstanceData);
 	GDREGISTER_CLASS(MultiNodeMarker);
+	GDREGISTER_CLASS(MultiNodeInstanceData);
 }
 
 void uninitialize_multi_node_module(ModuleInitializationLevel p_level) {
