@@ -18,6 +18,8 @@
 #include "multi_node_instancer.h"
 #include "multi_node_marker.h"
 #include "multi_node_instance_data.h"
+#include "multi_animation.h"
+#include "multi_animation_player.h"
 
 #include <gdextension_interface.h>
 #include <godot_cpp/core/defs.hpp>
@@ -47,6 +49,8 @@ void initialize_multi_node_module(ModuleInitializationLevel p_level) {
 	GDREGISTER_CLASS(MultiNodeInstancer);
 	GDREGISTER_CLASS(MultiNodeMarker);
 	GDREGISTER_CLASS(MultiNodeInstanceData);
+	GDREGISTER_CLASS(MultiAnimation);
+	GDREGISTER_CLASS(MultiAnimationPlayer);
 }
 
 void uninitialize_multi_node_module(ModuleInitializationLevel p_level) {

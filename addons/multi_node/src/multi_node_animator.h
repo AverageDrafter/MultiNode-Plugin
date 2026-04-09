@@ -2,27 +2,27 @@
 #define MULTI_NODE_ANIMATOR_H
 
 #include "multi_node_sub.h"
-#include <godot_cpp/classes/animation.hpp>
+#include "multi_animation.h"
+#include <godot_cpp/variant/packed_int32_array.hpp>
 #include <godot_cpp/variant/packed_float32_array.hpp>
-#include <godot_cpp/variant/packed_float64_array.hpp>
-#include <godot_cpp/variant/string_name.hpp>
-#include <godot_cpp/templates/vector.hpp>
 
 namespace godot {
 
-class MultiNodeMesh;
-
-/// General-purpose per-instance animator for MultiNode.
-/// Shares ONE Animation resource across all instances, each with independent
-/// playback state (time, speed, playing/paused).
+/// Per-instance key-based animator for MultiNode.
+///
+/// Plays a MultiAnimation resource across all instances, each with independent
+/// state (current key, target key, progress, speed).
+///
+/// LINEAR mode: auto-advances each instance through keys in order.
+/// CIRCULAR mode: each instance idles at its current key until
+///                go_to_key_instance() is called.
+///
+/// Method calls: keys can define methods that fire when an instance arrives.
+///               Instance index is prepended as the first argument.
 ///
 /// Sync modes:
-///   NONE — each instance animates from whenever it was played. Use this for
-///          manual per-instance control via scripts.
-///   SYNC — all instances share a base clock. sync_offset (0-1) controls
-///          the chain offset between consecutive instances:
-///          0.0 = perfect lockstep, 0.5 = each instance offset half the
-///          animation length from the previous, 1.0 = wraps fully (= lockstep).
+///   NONE — each instance independent, user controls timing.
+///   SYNC — instances start at staggered key positions.
 class MultiNodeAnimator : public MultiNodeSub {
 	GDCLASS(MultiNodeAnimator, MultiNodeSub)
 
@@ -44,11 +44,15 @@ public:
 	MultiNodeAnimator();
 	~MultiNodeAnimator();
 
-	void set_animation(const Ref<Animation> &p_anim);
-	Ref<Animation> get_animation() const;
+	// --- Resource ---
+	void set_animation_resource(const Ref<MultiAnimation> &p_res);
+	Ref<MultiAnimation> get_animation_resource() const;
 
 	void set_autoplay(bool p_auto);
 	bool get_autoplay() const;
+
+	void set_speed_scale(float p_speed);
+	float get_speed_scale() const;
 
 	void set_sync_mode(int p_mode);
 	int get_sync_mode() const;
@@ -56,69 +60,79 @@ public:
 	void set_sync_offset(float p_offset);
 	float get_sync_offset() const;
 
-	void set_speed_scale(float p_speed);
-	float get_speed_scale() const;
-
-	void play_all();
+	// --- Bulk playback ---
+	void play_all(const StringName &p_from_key = StringName());
 	void stop_all();
-	void play_instance(int p_index, float p_from_time = 0.0f);
+
+	// --- Per-instance control ---
+	void play_instance(int p_index, const StringName &p_from_key = StringName());
 	void stop_instance(int p_index);
+	void go_to_key_instance(int p_index, const StringName &p_name);
 	void set_instance_speed(int p_index, float p_speed);
-	float get_instance_time(int p_index) const;
+
+	// --- Per-instance queries ---
+	StringName get_instance_current_key(int p_index) const;
+	StringName get_instance_target_key(int p_index) const;
+	float get_instance_progress(int p_index) const;
+
+	// --- Arrived instances (batched signal) ---
+	PackedInt32Array get_arrived_instances() const;
 
 private:
-	Ref<Animation> _animation;
+	Ref<MultiAnimation> _resource;
 	bool _autoplay = true;
+	float _speed_scale = 1.0f;
 	int _sync_mode = SYNC_NONE;
 	float _sync_offset = 0.0f;
-	float _speed_scale = 1.0f;
 
-	// Per-instance playback state.
-	PackedFloat64Array _times;
+	// Per-instance state (parallel arrays).
+	PackedInt32Array _current_keys;
+	PackedInt32Array _target_keys;   // -1 = at rest.
+	PackedFloat32Array _progresses;
+	PackedFloat32Array _hold_timers;
 	PackedFloat32Array _speeds;
-	PackedByteArray _playing; // 0 = paused, 1 = playing.
+	PackedByteArray _playing;
 
-	// Base transforms captured at play_all()/play_instance() time.
-	// Transform tracks are applied additively on top of these.
+	// Base transforms for additive animation.
 	Vector<Transform3D> _base_transforms;
 
-	float _anim_length = 0.0f;
-
-	// --- Track binding ---
-	enum TrackTarget {
-		TARGET_NONE,
-		TARGET_PARENT_TRANSFORM,
-		TARGET_SUB_PROPERTY,
-		TARGET_METHOD_CALL,
-	};
-
-	struct BoundTrack {
-		int track_index = -1;
-		Animation::TrackType type = Animation::TYPE_VALUE;
-		TrackTarget target = TARGET_NONE;
-
+	// Property binding — resolved at bind time.
+	struct BoundProperty {
+		StringName path;
+		uint64_t target_node_id = 0;
+		StringName property_name;
+		StringName setter_method;      // "set_instance_X" if exists.
+		bool has_per_instance_setter = false;
 		bool is_position = false;
 		bool is_rotation = false;
 		bool is_scale = false;
-
-		uint64_t target_node_id = 0;
-		StringName property_name;
-		StringName method_name;
-
-		Node *get_target_node() const;
 	};
 
-	Vector<BoundTrack> _bound_tracks;
+	// Method call binding — resolved at bind time.
+	struct BoundMethod {
+		StringName method_name;
+		uint64_t target_node_id = 0;
+	};
 
-	// Cached flags from _bind_tracks() to avoid scanning _bound_tracks every frame.
-	bool _has_position_track = false;
-	bool _has_rotation_track = false;
-	bool _has_scale_track = false;
-	bool _has_transform_tracks = false;
+	Vector<BoundProperty> _bound_props;
+	Vector<BoundMethod> _bound_methods;
+	bool _has_transform_props = false;
 
-	void _bind_tracks();
+	// Arrived-this-frame buffer.
+	PackedInt32Array _arrived_this_frame;
+
+	// --- Internal ---
+	void _bind_properties();
 	void _resize_state(int p_count);
 	void _evaluate_all(double p_delta);
+	void _fire_key_methods(int p_instance, int p_key_index);
+
+	struct TransitionCache {
+		float duration = 0.3f;
+		int easing = MultiAnimation::EASE_IN_OUT;
+		int trans_type = MultiAnimation::TRANS_LINEAR;
+	};
+	TransitionCache _get_transition_cache(int p_from, int p_to) const;
 };
 
 } // namespace godot
