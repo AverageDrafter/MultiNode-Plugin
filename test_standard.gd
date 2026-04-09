@@ -13,8 +13,7 @@ var _multimesh_instance: MultiMeshInstance3D = null
 
 
 func _ready() -> void:
-	if Engine.has_singleton("DebugMenu"):
-		Engine.get_singleton("DebugMenu").style = 2  # VISIBLE_DETAILED
+	DebugMenu.style = DebugMenu.Style.VISIBLE_DETAILED
 	seed(Time.get_ticks_msec())
 
 	var box_mesh: BoxMesh = BoxMesh.new()

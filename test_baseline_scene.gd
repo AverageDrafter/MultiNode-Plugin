@@ -11,8 +11,7 @@ var _hovered_index: int = -1
 
 
 func _ready() -> void:
-	if Engine.has_singleton("DebugMenu"):
-		Engine.get_singleton("DebugMenu").style = 2
+	DebugMenu.style = DebugMenu.Style.VISIBLE_DETAILED
 	label.text = "MultiNode Baseline: %d instances (mesh + collider only)" % multi_node.instance_count
 
 

@@ -14,6 +14,14 @@ config/name="MultiNode Demo"
 run/main_scene="res://addons/multi_node/demo/demo_scene.tscn"
 config/features=PackedStringArray("4.6")
 
+[autoload]
+
+DebugMenu="*res://addons/debug_menu/debug_menu.gd"
+
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/multi_node/plugin.cfg")
+enabled=PackedStringArray("res://addons/debug_menu/plugin.cfg", "res://addons/multi_node/plugin.cfg")
+
+[physics]
+
+3d/physics_engine="Jolt Physics"
