@@ -432,7 +432,10 @@ void MultiNodeCollider::_physics_process(double p_delta) {
 		Transform3D world_xform = ps->body_get_state(_bodies[i], PhysicsServer3D::BODY_STATE_TRANSFORM);
 
 		if (world_xform == _last_world_transforms[i]) {
-			continue; // Jolt didn't move it — still sleeping or unchanged.
+			// Jolt didn't move it — zero velocity bus so scripts (sprite anim etc.)
+			// see rest state instead of stale sub-threshold residual velocity.
+			_parent->set_instance_angular_velocity(i, Vector3());
+			continue;
 		}
 		_last_world_transforms.write[i] = world_xform;
 

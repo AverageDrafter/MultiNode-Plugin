@@ -44,7 +44,7 @@ public:
 private:
 	Ref<Mesh> _mesh;
 	Ref<Material> _material_override;
-	bool _use_instance_colors = false;
+	bool _use_instance_colors = true;
 
 	RID _multimesh;
 	RID _instance;
