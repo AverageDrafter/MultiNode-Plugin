@@ -22,17 +22,7 @@ vertex_color_use_as_albedo = true
 [sub_resource type="BoxMesh" id="BoxMesh_default"]
 material = SubResource("StandardMaterial3D_0k8yu")
 
-[sub_resource type="SphereMesh" id="SphereMesh_0k8yu"]
-material = SubResource("StandardMaterial3D_0k8yu")
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_1"]
-material = SubResource("StandardMaterial3D_0k8yu")
-
 [sub_resource type="BoxShape3D" id="BoxShape_default"]
-
-[sub_resource type="SphereShape3D" id="SphereShape3D_0k8yu"]
-
-[sub_resource type="CapsuleShape3D" id="CapsuleShape_1"]
 
 [sub_resource type="BoxShape3D" id="BoxShape_1"]
 size = Vector3(2, 2, 2)
@@ -67,6 +57,24 @@ size = Vector3(6, 0.5, 6)
 [sub_resource type="BoxShape3D" id="PlatformShape_1"]
 size = Vector3(6, 0.5, 6)
 
+[sub_resource type="MultiAnimation" id="MultiAnimation_0k8yu"]
+keys_data = [{
+"hold_time": 0.0,
+"methods": {},
+"name": &"key_1",
+"properties": {}
+}, {
+"hold_time": 0.0,
+"methods": {},
+"name": &"key_2",
+"properties": {}
+}, {
+"hold_time": 0.0,
+"methods": {},
+"name": &"key_4",
+"properties": {}
+}]
+
 [sub_resource type="StandardMaterial3D" id="FloorMat_1"]
 albedo_color = Color(0.15, 0.25, 0.15, 1)
 
@@ -74,7 +82,7 @@ albedo_color = Color(0.15, 0.25, 0.15, 1)
 size = Vector2(200, 200)
 
 [sub_resource type="BoxShape3D" id="FloorBoxShape_1"]
-size = Vector3(200, 40, 200)
+size = Vector3(200, 1, 200)
 
 [sub_resource type="StandardMaterial3D" id="CeilingMat_1"]
 albedo_color = Color(0.15, 0.15, 0.25, 1)
@@ -104,29 +112,9 @@ script = ExtResource("6")
 [node name="MultiNodeMesh" type="MultiNodeMesh" parent="MultiNode"]
 mesh = SubResource("BoxMesh_default")
 
-[node name="MultiNodeMeshSphere" type="MultiNodeMesh" parent="MultiNode"]
-mesh = SubResource("SphereMesh_0k8yu")
-use_instance_colors = true
-instance_every = 0
-
-[node name="MultiNodeMeshCapsule" type="MultiNodeMesh" parent="MultiNode"]
-mesh = SubResource("CapsuleMesh_1")
-use_instance_colors = true
-instance_every = 0
-
 [node name="MultiNodeCollider" type="MultiNodeCollider" parent="MultiNode"]
 shape = SubResource("BoxShape_default")
 body_type = 2
-
-[node name="MultiNodeColliderSphere" type="MultiNodeCollider" parent="MultiNode"]
-shape = SubResource("SphereShape3D_0k8yu")
-body_type = 2
-instance_every = 0
-
-[node name="MultiNodeColliderCapsule" type="MultiNodeCollider" parent="MultiNode"]
-shape = SubResource("CapsuleShape_1")
-body_type = 2
-instance_every = 0
 
 [node name="MultiNodeLabel" type="MultiNodeLabel" parent="MultiNode"]
 outline_size = 8
@@ -169,10 +157,12 @@ instance_every = 0
 script = ExtResource("25")
 
 [node name="MultiNodeLight" type="MultiNodeLight" parent="MultiNode"]
+light_type = 1
 light_color = Color(0.13171518, 1, 0.32836807, 1)
-light_energy = 10.0
-light_range = 8.0
-use_instance_basis = false
+light_energy = 30.67
+light_range = 81.0
+spot_angle = 30.2
+offset_position = Vector3(0, 1, 0)
 instance_every = 0
 instance_range = "0:99,-50:59"
 
@@ -220,28 +210,34 @@ compute_enabled = true
 script = ExtResource("27")
 
 [node name="Platforms" type="MultiNode" parent="."]
-transform_buffer = [Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 0), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, 0), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, 0), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 0, 0), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 10), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, 10), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, 10), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 0, 10), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 20), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 20), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, 20), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, 20), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 0, 20), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 30), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 30), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, 30), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, 30), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 0, 30)]
+transform_buffer = [Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 0), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, 0), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, 0), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 0, 0), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 10), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, 10), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31, 0, 10), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 0, 10), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 20), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 20), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, 20), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, 20), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 0, 20), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 30), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -10, 0, 30), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, 30), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -30, 0, 30), Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 0, 30)]
 transform = Transform3D(1, 0, 0, 0, 0.99560606, -0.093639225, 0, 0.093639225, 0.99560606, 19.547474, -16.896442, 11.133255)
+
+[node name="MultiNodeMarker" type="MultiNodeMarker" parent="Platforms"]
+editor_only = false
 
 [node name="PlatformMesh" type="MultiNodeMesh" parent="Platforms"]
 mesh = SubResource("PlatformMesh_1")
-use_instance_colors = true
 
 [node name="PlatformCollider" type="MultiNodeCollider" parent="Platforms"]
 shape = SubResource("PlatformShape_1")
 body_type = 1
 
 [node name="PlatformAnimator" type="MultiNodeAnimator" parent="Platforms"]
+animation_resource = SubResource("MultiAnimation_0k8yu")
+speed_scale = 0.8
 sync_mode = 1
 sync_offset = 0.15
-speed_scale = 0.8
 script = ExtResource("32")
 
 [node name="Instancer" type="MultiNodeInstancer" parent="Platforms"]
+gen_mode = 2
 gen_count = 20
 gen_array_spacing = Vector3(10, 10, 10)
 gen_array_rows = -5
 gen_array_cols = 4
+gen_btn_regenerate = Callable()
+gen_btn_clear = Callable()
 
 [node name="Camera3D" type="Camera3D" parent="."]
 transform = Transform3D(0.99999994, 0, 0, 0, 1, 0, 0, 0, 1, -16.400604, 14.064102, 54.656445)
@@ -270,7 +266,7 @@ material_override = SubResource("FloorMat_1")
 mesh = SubResource("FloorMesh_1")
 
 [node name="FloorCollider" type="CollisionShape3D" parent="Floor"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -20, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 shape = SubResource("FloorBoxShape_1")
 
 [node name="Ceiling" type="StaticBody3D" parent="."]
@@ -321,17 +317,6 @@ offset_right = 600.0
 offset_bottom = 200.0
 theme_override_font_sizes/font_size = 16
 text = "Loading..."
-
-[node name="PerfLabel" type="Label" parent="UI"]
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -300.0
-offset_bottom = 200.0
-grow_horizontal = 0
-theme_override_font_sizes/font_size = 16
-text = "--- Performance ---"
-horizontal_alignment = 2
 
 [node name="ControlPanel" type="PanelContainer" parent="UI"]
 anchors_preset = 12

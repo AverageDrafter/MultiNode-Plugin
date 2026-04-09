@@ -9,13 +9,11 @@ extends Node3D
 @onready var area_node: MultiNodeArea = $MultiNode/MultiNodeArea
 @onready var camera: Camera3D = $Camera3D
 @onready var label: Label = $UI/Label
-@onready var perf_label: Label = $UI/PerfLabel
-
 var _hovered_index: int = -1
-var _perf_timer: float = 0.0
 
 
 func _ready() -> void:
+	DebugMenu.style = DebugMenu.Style.VISIBLE_DETAILED
 	label.text = "MultiNode: %d instances" % multi_node.instance_count
 
 
@@ -26,32 +24,6 @@ func _unhandled_input(event: InputEvent) -> void:
 		multi_node._ready()
 		for i: int in range(multi_node.instance_count):
 			mesh_node.set_instance_color(i, Color.WHITE)
-
-
-func _process(delta: float) -> void:
-	_perf_timer += delta
-	if _perf_timer < 0.25:
-		return
-	_perf_timer = 0.0
-
-	var fps: float = Performance.get_monitor(Performance.TIME_FPS)
-	var frame_time: float = Performance.get_monitor(Performance.TIME_PROCESS) * 1000.0
-	var physics_time: float = Performance.get_monitor(Performance.TIME_PHYSICS_PROCESS) * 1000.0
-	var static_mem: float = Performance.get_monitor(Performance.MEMORY_STATIC) / (1024.0 * 1024.0)
-	var objects: float = Performance.get_monitor(Performance.OBJECT_COUNT)
-	var draw_calls: float = Performance.get_monitor(Performance.RENDER_TOTAL_DRAW_CALLS_IN_FRAME)
-	var vram: float = Performance.get_monitor(Performance.RENDER_VIDEO_MEM_USED) / (1024.0 * 1024.0)
-
-	var perf_lines: PackedStringArray = PackedStringArray()
-	perf_lines.push_back("--- Performance ---")
-	perf_lines.push_back("FPS: %d" % int(fps))
-	perf_lines.push_back("Frame: %.2f ms" % frame_time)
-	perf_lines.push_back("Physics: %.2f ms" % physics_time)
-	perf_lines.push_back("Memory: %.1f MB" % static_mem)
-	perf_lines.push_back("VRAM: %.1f MB" % vram)
-	perf_lines.push_back("Objects: %d" % int(objects))
-	perf_lines.push_back("Draw calls: %d" % int(draw_calls))
-	perf_label.text = "\n".join(perf_lines)
 
 
 func _physics_process(_delta: float) -> void:
